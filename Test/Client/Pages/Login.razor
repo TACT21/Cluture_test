@@ -1,0 +1,12 @@
+﻿@page "/login"
+@inject IJSRuntime JSRuntime
+<h3>Component</h3>
+
+@code {
+    protected override async Task OnInitializedAsync() {
+        var jS = await JSRuntime.InvokeAsync<IJSObjectReference>(
+            "import", "./script/login/google.js"
+        );
+        await jS.InvokeAsync<String>("Login",null);
+    }
+}

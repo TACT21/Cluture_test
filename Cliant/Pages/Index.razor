@@ -1,0 +1,16 @@
+﻿@page "/"
+@inject IJSRuntime JS
+<PageTitle>Index</PageTitle>
+
+<h1>Hello, world!</h1>
+
+Welcome to your new app.
+
+<SurveyPrompt Title="How is Blazor working for you?" />
+<button @onclick="GetSomeTaskAsync">Button1</button>
+@code{
+    string result;
+    public async Task GetSomeTaskAsync(){
+        result = await JS.InvokeAsync<string>("Login", null);
+    }
+}
