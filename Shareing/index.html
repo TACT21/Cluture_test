@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="jp">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shareing</title>
+</head>
+<body>
+    <script>
+        window.addEventListener('message', function (e) {
+        if(e.origin.indexOf("https://") === -1 && e.origin.indexOf("http://") === -1)
+        switch (e.data.action) {
+            case 'CallValue':
+                origineName = e.origin;
+                var item = localStorage.getItem(e.data.message);
+                if(item.split(',')[1].indexOf(origineName) !== -1){
+                    window.opener.postMessage({
+                        action: 'ReturnValue',
+                        message: item.split(',')[0]
+                    }, '*', );
+                }else if(item.split(',')[1].indexOf(String(origineName).replace("https://").replace("http://").split(":")[0]) !== -1){
+                    window.opener.postMessage({
+                        action: 'ReturnValue',
+                        message: item.split(',')[0]
+                    }, '*', );
+                }
+                break;
+            case 'SetValue':
+                if(localStorage.getItem(e.data.tag) === null && sessionStorage.getItem(e.data.tag) === null){
+                    localStorage.setItem(e.data.tag,e.data.message);
+                    window.opener.postMessage({
+                        action: 'ReturnValue',
+                        message: "Succeed"
+                    }, '*', );
+                }else{
+                    window.opener.postMessage({
+                        action: 'ReturnValue',
+                        message: "Tagname is already exist"
+                    }, '*', );
+                }
+                localStorage.setItem(キー, 値);
+            case 'SendValue':
+                if(localStorage.getItem(e.data.tag) === null && sessionStorage.getItem(e.data.tag) === null){
+                    sessionStorage.setItem(e.data.tag,e.data.message);
+                    window.opener.postMessage({
+                        action: 'ReturnValue',
+                        message: "Succeed"
+                    }, '*', );
+                }else{
+                    window.opener.postMessage({
+                        action: 'ReturnValue',
+                        message: "Tagname is already exist"
+                    }, '*', );
+                }
+        }
+        });
+    </script>
+  </body>
+</html>

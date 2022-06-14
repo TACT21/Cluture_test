@@ -38,3 +38,5 @@ function parentFunc(content) {
     isComp = true;
     body = content;
 }
+
+class 
