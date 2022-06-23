@@ -8,9 +8,20 @@ Welcome to your new app.
 
 <SurveyPrompt Title="How is Blazor working for you?" />
 <button @onclick="GetSomeTaskAsync">Button1</button>
+<iframe name="iframe" src="http://A.com/index.html" style="height:0"></iframe>
+@a
+
 @code{
     string result;
+    string a;
     public async Task GetSomeTaskAsync(){
+        string[] arry = new string[] { "Test", "Test", "", "localhost" };
+        var a = await JS.InvokeAsync<string>("TrySet",arry);
+        if(a  == "")
+        {
+            Console.WriteLine("Error! Cannot set it.");
+        }
+        a = await JS.InvokeAsync<string>("TrySet",arry);
         result = await JS.InvokeAsync<string>("Login", null);
     }
 }

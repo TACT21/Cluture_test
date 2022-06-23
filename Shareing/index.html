@@ -39,7 +39,6 @@
                         message: "Tagname is already exist"
                     }, '*', );
                 }
-                localStorage.setItem(キー, 値);
             case 'SendValue':
                 if(localStorage.getItem(e.data.tag) === null && sessionStorage.getItem(e.data.tag) === null){
                     sessionStorage.setItem(e.data.tag,e.data.message);
@@ -56,5 +55,6 @@
         }
         });
     </script>
+    
   </body>
 </html>
