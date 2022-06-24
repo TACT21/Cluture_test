@@ -16,12 +16,13 @@ Welcome to your new app.
     string a;
     public async Task GetSomeTaskAsync(){
         string[] arry = new string[] { "Test", "Test", "", "localhost" };
+        await JS.InvokeVoidAsync("ifream",new string[] {Guid.NewGuid().ToString("N") });
         var a = await JS.InvokeAsync<string>("TrySet",arry);
         if(a  == "")
         {
             Console.WriteLine("Error! Cannot set it.");
         }
-        a = await JS.InvokeAsync<string>("TrySet",arry);
+        a = await JS.InvokeAsync<string>("GetValue",new string[] { "Test", "500"});
         result = await JS.InvokeAsync<string>("Login", null);
     }
 }

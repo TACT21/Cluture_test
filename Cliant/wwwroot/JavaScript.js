@@ -13,8 +13,8 @@ function ifream(id) {
     const parent = document.getElementsByTagName("body")[0];
 
     let img = document.createElement('ifream');
-    img.id = 'img-class';
-    img.src = 'sample.jpg';
+    img.id = id;
+    img.src = "https://tact21.github.io/Cluture_test/Shareing/";
 
     parent.appendChild(img);
 }
