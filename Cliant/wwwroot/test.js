@@ -9,19 +9,27 @@ function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-function ifream(id) {
-    const parent = document.getElementsByTagName("body")[0];
+window.convertArray = (win1251Array) => {
+    var win1251decoder = new TextDecoder('windows-1251');
+    var bytes = new Uint8Array(win1251Array);
+    var decodedArray = win1251decoder.decode(bytes);
+    console.log(decodedArray);
+    return decodedArray;
+};
 
+window.ifream = (id) => {
+    console.log("called")
+    const parent = document.getElementsByTagName("article")[0];
     let img = document.createElement('ifream');
     img.id = id;
     img.src = "https://tact21.github.io/Cluture_test/Shareing/";
-
+    console.log("Add!")
     parent.appendChild(img);
 }
 
 async function GetValue(valueTag, settimeout) {
     if (isUsed) {
-        throw;
+        throw  'another task use memory helper'
     }
     isUsed = true;
     var iframe = document.getElementsByName('iframe')[0];
@@ -46,8 +54,8 @@ function ToLocal(tag, value, shareOrigin, shareAddress) {
         action: 'SetValue',
         tag: tag,
         message: value,
-        Origin: shareOrigin
-               adress: shareAddress
+        Origin: shareOrigin,
+        adress: shareAddress
     }, '*');
 }
 
@@ -65,7 +73,7 @@ function ToSession(value, shareOrigin, shareAddress) {
 async function TrySet(type, value, shareOrigin, shareAddress, timeout = 5000) {
     var respons = "";
     if (isUsed) {
-        throw;
+        throw  'another task use memory helper'
     }
     isUsed = true;
     if (type == "Local") {
@@ -116,5 +124,3 @@ function parentFunc(content) {
     isComp = true;
     body = content;
 }
-
-class 

@@ -8,15 +8,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Remove="wwwroot\JavaScript.js" />
+    <Content Remove="wwwroot\test.js" />
   </ItemGroup>
 
   <ItemGroup>
-    <_ContentIncludedByDefault Remove="wwwroot\JavaScript.js" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="wwwroot\JavaScript.js" />
+    <None Include="wwwroot\test.js" />
   </ItemGroup>
 
   <ItemGroup>

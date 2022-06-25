@@ -8,15 +8,26 @@ Welcome to your new app.
 
 <SurveyPrompt Title="How is Blazor working for you?" />
 <button @onclick="GetSomeTaskAsync">Button1</button>
-<iframe name="iframe" src="http://A.com/index.html" style="height:0"></iframe>
 @a
+
+<h1>Call JS <code>convertArray</code> Function</h1>
+
+<p>
+    <button @onclick="ConvertArray">Convert Array</button>
+</p>
+
+<p>
+    @text
+</p>
 
 @code{
     string result;
     string a;
     public async Task GetSomeTaskAsync(){
         string[] arry = new string[] { "Test", "Test", "", "localhost" };
+                Console.WriteLine("Start test");
         await JS.InvokeVoidAsync("ifream",new string[] {Guid.NewGuid().ToString("N") });
+        Console.WriteLine("call test");
         var a = await JS.InvokeAsync<string>("TrySet",arry);
         if(a  == "")
         {
@@ -24,5 +35,19 @@ Welcome to your new app.
         }
         a = await JS.InvokeAsync<string>("GetValue",new string[] { "Test", "500"});
         result = await JS.InvokeAsync<string>("Login", null);
+    }
+    private MarkupString text;
+    private uint[] quoteArray = 
+        new uint[]
+        {
+            60, 101, 109, 62, 67, 97, 110, 39, 116, 32, 115, 116, 111, 112, 32,
+            116, 104, 101, 32, 115, 105, 103, 110, 97, 108, 44, 32, 77, 97,
+            108, 46, 60, 47, 101, 109, 62, 32, 45, 32, 77, 114, 46, 32, 85, 110,
+            105, 118, 101, 114, 115, 101, 10, 10,
+        };
+
+    private async Task ConvertArray()
+    {
+        text = new(await JS.InvokeAsync<string>("convertArray", quoteArray));
     }
 }
