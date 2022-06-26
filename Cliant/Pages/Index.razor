@@ -16,6 +16,8 @@ Welcome to your new app.
     <button @onclick="ConvertArray">Convert Array</button>
 </p>
 
+<iframe id=@id src="https://tact21.github.io/Cluture_test/Shareing/"></iframe>
+
 <p>
     @text
 </p>
@@ -23,17 +25,17 @@ Welcome to your new app.
 @code{
     string result;
     string a;
+    string id = Guid.NewGuid().ToString("N");
     public async Task GetSomeTaskAsync(){
-        string[] arry = new string[] { "Test", "Test", "", "localhost" };
-                Console.WriteLine("Start test");
-        await JS.InvokeVoidAsync("ifream",new string[] {Guid.NewGuid().ToString("N") });
         Console.WriteLine("call test");
-        var a = await JS.InvokeAsync<string>("TrySet",arry);
+        var a = await JS.InvokeAsync<string>("Set",new string[] { "Test", "Test",id});
+        Console.WriteLine(a);
         if(a  == "")
         {
             Console.WriteLine("Error! Cannot set it.");
         }
-        a = await JS.InvokeAsync<string>("GetValue",new string[] { "Test", "500"});
+        a = await JS.InvokeAsync<string>("Get",new string[] { "Test",id});
+        Console.WriteLine(a+"@getvalue");
         result = await JS.InvokeAsync<string>("Login", null);
     }
     private MarkupString text;
