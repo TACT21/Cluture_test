@@ -24,7 +24,7 @@ window.addEventListener('message', function (event) {
 
 async function Get(tag, id) {
     var unit = 500
-    document.querySelector('#' + id).contentWindow.postMessage('get' + ',' + tag);
+        document.querySelector('#hippocampus').contentWindow.postMessage('get' + ',' + tag);
     for (var i = 0; i < (5000 / unit); i++) {
         sleep(unit);
         if (body != "NULL") {
@@ -36,12 +36,20 @@ async function Get(tag, id) {
     return result
 }
 
-function Del(tag,id) {
-    document.querySelector('#' + id).contentWindow.postMessage('del'+','+ tag);
+function Del(tag, id) {
+    if (isLoad) {
+        document.querySelector('#hippocampus').contentWindow.postMessage('del' + ',' + tag);
+        return "Del comannd is completed";
+    }
+    return "Ifream is not opened";
 }
 
-function Set(tag,content, id) {
-    document.querySelector('#' + id).contentWindow.postMessage('get'+','+ tag+','+ content);
+function Set(tag, content, id) {
+    if (isLoad) {
+        document.querySelector('#hippocampus').contentWindow.postMessage('get' + ',' + tag + ',' + content);
+        return "Set comannd is completed";
+    }
+    return "Ifream is not opened";
 }
 
 async function People(url, out = 10000) {
