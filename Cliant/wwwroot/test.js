@@ -30,18 +30,18 @@ window.addEventListener('message', function (event) {
 
 async function Get(tag, id) {
     if (isLoad) {
-    var unit = 500
+        var unit = 500
         document.querySelector('#hippocampus').contentWindow.postMessage('get' + ',' + tag);
-    for (var i = 0; i < (5000 / unit); i++) {
-        sleep(unit);
-        if (body != "NULL") {
-            break;
+        for (var i = 0; i < (5000 / unit); i++) {
+            sleep(unit);
+            if (body != "NULL") {
+                break;
+            }
         }
+        var result = body;
+        body = "NULL";
+        return result
     }
-    var result = body;
-    body = "NULL";
-    return result
-}
     return "Ifream is not opened";
 }
 
