@@ -4,6 +4,12 @@ var value = "";
 var isComp = false;
 var isUsed = false;
 var body = "NULL";
+var isLoad = false;
+
+window.onload = function () {
+    isLoad = true;
+}
+
 
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
@@ -23,6 +29,7 @@ window.addEventListener('message', function (event) {
 });
 
 async function Get(tag, id) {
+    if (isLoad) {
     var unit = 500
         document.querySelector('#hippocampus').contentWindow.postMessage('get' + ',' + tag);
     for (var i = 0; i < (5000 / unit); i++) {
@@ -34,6 +41,8 @@ async function Get(tag, id) {
     var result = body;
     body = "NULL";
     return result
+}
+    return "Ifream is not opened";
 }
 
 function Del(tag, id) {
