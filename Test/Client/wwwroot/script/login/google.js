@@ -1,9 +1,9 @@
-﻿export function sleep(ms) {
+﻿ function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 var isComp = false;
 var body = "";
-export async function People(url,out = 10000) {
+async function People(url,out = 10000) {
     let xhr = new XMLHttpRequest();
     console.log("Get 2 " + url)
     xhr.open("GET", url,false);
@@ -16,7 +16,7 @@ export async function People(url,out = 10000) {
         if (xhr.readyState == 4 && xhr.status === 200) {
             isComp = true;
             body = xhr.responseText;
-        } else if (xhr.readyState == 4) {]
+        } else if (xhr.readyState == 4) {
             // error
         }
     };
@@ -29,6 +29,6 @@ export async function People(url,out = 10000) {
     return body;
 }
 
-export function Login() {
+function Login(string to) {
     return People("https://script.google.com/a/macros/sit-kashiwa.com/s/AKfycbyLqSuV8-BqSjYvl1Zkgb888UtrC4EMyppn5i2eHHVxCiu_QEMudjMS7jrRX3jpOKZk/exec?name=true");
 }
