@@ -2,6 +2,7 @@
 @using Microsoft.AspNetCore.SignalR.Client
 @inject NavigationManager NavigationManager
 @implements IAsyncDisposable
+@inject IJSRuntime jsruntime
 
 <PageTitle>Index</PageTitle>
 <NavLink class="nav-link" href="login">Login_Test</NavLink>
@@ -19,32 +20,32 @@
 </div>
 <button @onclick="Send" disabled="@(!IsConnected)">Send</button>
 
-<hr>
 
-<ul id="messagesList">
-    @foreach (var message in messages)
-    {
-        <li>@message</li>
-    }
-</ul>
+<div style=@style class="modal">
+    <div class="modal_content">
+        <h1>Error</h1>
+        @((MarkupString)errormessage)
+        <button @onclick="Close_modal">Close</button>
+    </div>
+</div>
 
 @code {
     private HubConnection? hubConnection;
     private List<string> messages = new List<string>();
     private string? userInput;
     private string? messageInput;
+    public string? errormessage;
+    public string style = "display:none";
 
     protected override async Task OnInitializedAsync()
     {
         hubConnection = new HubConnectionBuilder()
-            .WithUrl(NavigationManager.ToAbsoluteUri("/chathub"))
+            .WithUrl( NavigationManager.ToAbsoluteUri("/Loginhub"))
             .Build();
 
-        hubConnection.On<string, string>("ReceiveMessage", (user, message) =>
+        hubConnection.On("ConectionOK", () =>
         {
-            var encodedMsg = $"{user}: {message}";
-            messages.Add(encodedMsg);
-            StateHasChanged();
+            Console.WriteLine("Conection exist");
         });
 
         await hubConnection.StartAsync();
@@ -55,7 +56,18 @@
         if (hubConnection is not null)
         {
             await hubConnection.SendAsync("SendMessage", userInput, messageInput);
+            await jsruntime.InvokeVoidAsync("Login", new string[2] { NavigationManager.ToAbsoluteUri("/Loginhub").ToString(), hubConnection.ConnectionId });
         }
+        else
+        {
+            style = "display:block";
+            errormessage = "Lost conecrtion with Loginhub in server.";
+        }
+    }
+
+    public void Close_modal()
+    {
+            style = "display:none";
     }
 
     public bool IsConnected =>

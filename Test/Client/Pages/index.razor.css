@@ -1,0 +1,19 @@
+﻿.modal {
+    display: none;
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    color:#fff;
+}
+
+.modal_content {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    -webkit-transform: translate(-50%,-50%);
+    transform: translate(-50%,-50%);
+    width: 100px;
+    text-align: center; /*一応BOX内の文字も中央寄せ*/
+}
