@@ -1,11 +1,12 @@
 ﻿using Microsoft.JSInterop;
 using Microsoft.AspNetCore.SignalR.Client;
+using Microsoft.AspNetCore.Components;
 namespace Test.Client.Scripts
 {
-    public class Interfaces
+    public static class Shared
     {
-        static Interfaces interfaces = new Interfaces();
-        public JSRuntime runtime;
-        public HubConnection hubConnection;
+        public static JSRuntime runtime;
+        public static HubConnection hubConnection;
+        public static NavigationManager navigationManager; 
     }
 }

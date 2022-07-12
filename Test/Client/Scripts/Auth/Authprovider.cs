@@ -1,11 +1,14 @@
 ﻿using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.SignalR.Client;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Authentication;
 using System.Threading.Tasks;
 using Test.Shared.Services.Auth;
+using Microsoft.JSInterop;
+using Test.Client.Scripts;
 
 namespace Test.Client.Scripts.Auth
 {
@@ -18,7 +21,7 @@ namespace Test.Client.Scripts.Auth
         }
 
         public LoginMode loginMode;
-        async Task<LoginResult> LoginAsync(LoginModel loginModel)
+        public async Task<LoginResult> LoginAsync(LoginModel loginModel)
         {
             if(((int)loginMode) == 0)
             {
@@ -41,44 +44,45 @@ namespace Test.Client.Scripts.Auth
 
         public async Task<LoginResult> MicrosoftLogin(LoginModel loginModel)
         {
-            // wait 3 seconds
-            await Task.Delay(3000);
             if (loginModel == null)
             {
                 throw new ArgumentException("loginModel is null");
-            }
-            if (loginModel.UserID == "demo" && loginModel.Password == "demo")
+            }else if (loginModel == null)
             {
-                var res = new LoginResult()
-                {
-                    IsSuccessful = true,
-                    IDToken = "hoge"
-                };
-                var roles = new List<string>();
-                roles.Add("Admin");
-                await ((SPAAuthticateProvider)_authenticationStateProvider).MarkUserAsAuthenticated(loginModel.UserID, res.IDToken, roles);
-                return res;
+                throw new ArgumentException("loginModel is null");
             }
-            else if (loginModel.UserID == "demo2" && loginModel.Password == "demo2")
+            else if (loginModel == null)
             {
-                var res = new LoginResult()
-                {
-                    IsSuccessful = true,
-                    IDToken = "hoge"
-                };
-                var roles = new List<string>();
-                roles.Add("User");
-                await ((SPAAuthticateProvider)_authenticationStateProvider).MarkUserAsAuthenticated(loginModel.UserID, res.IDToken, roles);
-                return res;
+                throw new ArgumentException("loginModel is null");
             }
-            else
+            else if (loginModel == null)
+            {
+                throw new ArgumentException("loginModel is null");
+            }
+                var token = new CancellationTokenSource().Token;
+            bool recive = false;
+            string name = string.Empty;
+            string address = string.Empty;
+            Shared.hubConnection.On<string>("LoginCorect", (messege) =>
+             {
+                 address = messege.Split(",")[0];
+                 name = messege.Split(",")[1];
+                 recive = true;
+             }
+            );
+            await JSRuntimeExtensions.InvokeVoidAsync(
+                Shared.runtime, 
+                "Login", 
+                new string[2] {Shared.navigationManager.ToAbsoluteUri("/Loginhub").ToString(),Shared.hubConnection.ConnectionId});
+            await 
+            /*else
             {
                 return new LoginResult()
                 {
                     IsSuccessful = false,
                     Error = new AuthenticationException("NotAuthrized")
                 };
-            }
+            }*/
         }
 
         public async Task<LoginResult> GoogleLogin(LoginModel loginModel)
