@@ -6,29 +6,42 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Authentication;
 using System.Threading.Tasks;
-using Test.Shared.Services.Auth;
 using Microsoft.JSInterop;
 using Test.Client.Scripts;
+using Test.Client.Services.Auth;
 
 namespace Test.Client.Scripts.Auth
 {
     public class Authprovider : IAuthService
     {
-        public enum LoginMode
+        public Dictionary<string, int> LoginMode = new Dictionary<string, int>()
         {
-            Mictrosoft = 0,
-            Google
-        }
-
-        public LoginMode loginMode;
-        public async Task<LoginResult> LoginAsync(LoginModel loginModel)
+            {"Microsoft", 0},
+            {"Google", 1}
+        };
+        public async Task<LoginResult> LoginAsync(LoginModel loginModel, int login,Logintools tools)
         {
-            if(((int)loginMode) == 0)
+            LoginResult result;
+            if (login== 0)
             {
-                return await MicrosoftLogin(loginModel);
-            }else if(((int)loginMode) == 1)
+                try
+                {
+                    result =  await MicrosoftLogin(loginModel, tools);
+                }catch(Exception e)
+                {
+                    throw;
+                }
+                return result;
+            }else if(login == 1)
             {
-                return await GoogleLogin(loginModel);
+                try { 
+                    result =  await GoogleLogin(loginModel);
+                }
+                catch (Exception e)
+                {
+                    throw;
+                }
+                return result;
             }
             else
             {
@@ -41,40 +54,50 @@ namespace Test.Client.Scripts.Auth
         {
             _authenticationStateProvider = authenticationStateProvider;
         }
-
-        public async Task<LoginResult> MicrosoftLogin(LoginModel loginModel)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="loginModel"></param>
+        /// <param name="tools"></param>
+        /// <param name="wait"></param>
+        /// <param name="unit"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
+        public async Task<LoginResult> MicrosoftLogin(LoginModel loginModel ,Logintools tools,int wait = 30000,int unit = 500)
         {
             if (loginModel == null)
             {
                 throw new ArgumentException("loginModel is null");
-            }else if (loginModel == null)
+            }else if (tools == null)
             {
-                throw new ArgumentException("loginModel is null");
-            }
-            else if (loginModel == null)
-            {
-                throw new ArgumentException("loginModel is null");
-            }
-            else if (loginModel == null)
-            {
-                throw new ArgumentException("loginModel is null");
+                throw new ArgumentException("tools is null");
             }
                 var token = new CancellationTokenSource().Token;
             bool recive = false;
-            string name = string.Empty;
-            string address = string.Empty;
-            Shared.hubConnection.On<string>("LoginCorect", (messege) =>
-             {
-                 address = messege.Split(",")[0];
-                 name = messege.Split(",")[1];
-                 recive = true;
-             }
-            );
+            LoginResult result = new LoginResult();
             await JSRuntimeExtensions.InvokeVoidAsync(
-                Shared.runtime, 
+                tools.jS, 
                 "Login", 
-                new string[2] {Shared.navigationManager.ToAbsoluteUri("/Loginhub").ToString(),Shared.hubConnection.ConnectionId});
-            await 
+                new string[2] {tools.nav.ToAbsoluteUri("/Loginhub").ToString(),tools.hub.ConnectionId});
+            tools.hub.On<string>("LoginCorect", async (message) => {
+                var a = message.Split(",");
+                result.name = a[1];
+                result.address = a[0];
+                recive = true;
+            });
+            for (int i = 0; i < (wait/unit); i++)
+            {
+                await Task.Delay(unit);
+                if(recive == true)
+                {
+                    break;
+                }
+            }
+            if (recive == false)
+            {
+                result.Error = new TimeoutException();
+            }
+            return result;
             /*else
             {
                 return new LoginResult()
