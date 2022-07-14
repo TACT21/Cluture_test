@@ -35,7 +35,7 @@ namespace Test.Client.Scripts.Auth
             }else if(login == 1)
             {
                 try { 
-                    result =  await GoogleLogin(loginModel);
+                    result =  await GoogleLogin(loginModel,tools);
                 }
                 catch (Exception e)
                 {
@@ -63,7 +63,7 @@ namespace Test.Client.Scripts.Auth
         /// <param name="unit"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
-        public async Task<LoginResult> MicrosoftLogin(LoginModel loginModel ,Logintools tools,int wait = 30000,int unit = 500)
+        public async Task<LoginResult> GoogleLogin(LoginModel loginModel ,Logintools tools,int wait = 30000,int unit = 500)
         {
             if (loginModel == null)
             {
@@ -83,6 +83,7 @@ namespace Test.Client.Scripts.Auth
                 var a = message.Split(",");
                 result.name = a[1];
                 result.address = a[0];
+                result.IDToken = a[2];
                 recive = true;
             });
             for (int i = 0; i < (wait/unit); i++)
@@ -97,57 +98,43 @@ namespace Test.Client.Scripts.Auth
             {
                 result.Error = new TimeoutException();
             }
+            await ((SPAAuthticateProvider)_authenticationStateProvider).MarkUserAsAuthenticated(loginModel.UserID, res.IDToken);
             return result;
-            /*else
-            {
-                return new LoginResult()
-                {
-                    IsSuccessful = false,
-                    Error = new AuthenticationException("NotAuthrized")
-                };
-            }*/
         }
 
-        public async Task<LoginResult> GoogleLogin(LoginModel loginModel)
+        public async Task<LoginResult> MicrosoftLogin(LoginModel loginModel,Logintools tools, int wait = 30000, int unit = 500)
         {
-            // wait 3 seconds
-            await Task.Delay(3000);
             if (loginModel == null)
             {
                 throw new ArgumentException("loginModel is null");
             }
-            if (loginModel.UserID == "demo" && loginModel.Password == "demo")
+            else if (tools == null)
             {
-                var res = new LoginResult()
-                {
-                    IsSuccessful = true,
-                    IDToken = "hoge"
-                };
-                var roles = new List<string>();
-                roles.Add("Admin");
-                await ((SPAAuthticateProvider)_authenticationStateProvider).MarkUserAsAuthenticated(loginModel.UserID, res.IDToken, roles);
-                return res;
+                throw new ArgumentException("tools is null");
             }
-            else if (loginModel.UserID == "demo2" && loginModel.Password == "demo2")
+            var token = new CancellationTokenSource().Token;
+            bool recive = false;
+            LoginResult result = new LoginResult();
+            tools.hub.On<string>("LoginCorect", async (message) => {
+                var a = message.Split(",");
+                result.name = a[1];
+                result.address = a[0];
+                recive = true;
+            });
+            await tools.hub.SendAsync("MicrosoftLogin", loginModel.UserID, loginModel.Password);
+            for (int i = 0; i < (wait / unit); i++)
             {
-                var res = new LoginResult()
+                await Task.Delay(unit);
+                if (recive == true)
                 {
-                    IsSuccessful = true,
-                    IDToken = "hoge"
-                };
-                var roles = new List<string>();
-                roles.Add("User");
-                await ((SPAAuthticateProvider)_authenticationStateProvider).MarkUserAsAuthenticated(loginModel.UserID, res.IDToken, roles);
-                return res;
+                    break;
+                }
             }
-            else
+            if (recive == false)
             {
-                return new LoginResult()
-                {
-                    IsSuccessful = false,
-                    Error = new AuthenticationException("NotAuthrized")
-                };
+                result.Error = new TimeoutException();
             }
+            return result;
         }
 
         public async Task LogoutAsync()
