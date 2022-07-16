@@ -34,7 +34,6 @@ namespace Test.Client.Services.Auth
     public class Logintools
     {
         public NavigationManager nav { get; set; }
-        public HubConnection hub { get; set; }
-        public JSRuntime jS { get; set; }
+        public IJSRuntime jS { get; set; }
     }
 }

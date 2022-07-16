@@ -30,5 +30,5 @@ async function People(url,out = 10000) {
 }
 
 function Login(to, token) {
-    return People("https://script.google.com/a/macros/sit-kashiwa.com/s/AKfycbwdRt7dzGKJpbr1fvxYR7yKd5c6y_Ig6NaRQ_F8jDzjKPoizRp_vkdZBix3OodaMC0w/exec?name=true&to=" + String(to) + "&token=" + String(token);
+    return People("https://script.google.com/a/macros/sit-kashiwa.com/s/AKfycbwdRt7dzGKJpbr1fvxYR7yKd5c6y_Ig6NaRQ_F8jDzjKPoizRp_vkdZBix3OodaMC0w/exec?name=true&to=" + String(to) + "&token=" + String(token));
 }

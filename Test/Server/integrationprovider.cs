@@ -12,14 +12,19 @@ namespace Test.Server
         {
             public async Task Register(string uuid,string email)
             {
-                if (Librarian.core[uuid] != email)
-                {
-                    throw new Exception();
-                }
+                Librarian.core.Add(uuid, email);
             }
             public async Task CheckIn(string uuid, string email)
             {
-                Librarian.core.Add(uuid, email);
+                var value = string.Empty;
+                if (!Librarian.core.TryGetValue(uuid,out value))
+                {
+                    throw new AggregateException();
+                }
+                if (value == email)
+                {
+                    Librarian.core.Remove(uuid);
+                }
             }
             public async Task CheckOut(string uuid, string email)
             {

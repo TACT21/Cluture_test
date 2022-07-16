@@ -2,19 +2,22 @@
 @using Microsoft.AspNetCore.SignalR.Client
 @inject NavigationManager NavigationManager
 @implements IAsyncDisposable
+@inject  IAuthService authService
 @inject IJSRuntime jsruntime
+@using Test.Client.Scripts.Auth;
+@using Test.Client.Services.Auth;
 
 <PageTitle>Index</PageTitle>
 <NavLink class="nav-link" href="login">Login_Test</NavLink>
 <div class="form-group">
     <label>
-        User:
+        mailaddress:
         <input @bind="userInput" />
     </label>
 </div>
 <div class="form-group">
     <label>
-        Message:
+        password:
         <input @bind="messageInput" size="50" />
     </label>
 </div>
@@ -29,6 +32,8 @@
     </div>
 </div>
 
+<Debug></Debug>
+
 @code {
     private HubConnection? hubConnection;
     private List<string> messages = new List<string>();
@@ -37,31 +42,18 @@
     public string? errormessage;
     public string style = "display:none";
 
-    protected override async Task OnInitializedAsync()
-    {
-        hubConnection = new HubConnectionBuilder()
-            .WithUrl( NavigationManager.ToAbsoluteUri("/Loginhub"))
-            .Build();
-
-        hubConnection.On("ConectionOK", () =>
-        {
-            Console.WriteLine("Conection exist");
-        });
-
-        await hubConnection.StartAsync();
-    }
 
     private async Task Send()
     {
-        if (hubConnection is not null)
+        if (userInput != null && userInput != null)
         {
-            await hubConnection.SendAsync("SendMessage", userInput, messageInput);
-            await jsruntime.InvokeVoidAsync("Login", new string[2] { NavigationManager.ToAbsoluteUri("/Loginhub").ToString(), hubConnection.ConnectionId });
-        }
-        else
-        {
-            style = "display:block";
-            errormessage = "Lost conecrtion with Loginhub in server.";
+            LoginModel login = new LoginModel();
+            login.UserID = userInput;
+            login.Password = messageInput;
+            Logintools tools = new Logintools();
+            tools.jS = jsruntime;
+            tools.nav = NavigationManager;
+            await authService.LoginAsync(login,0,tools);
         }
     }
 

@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Authentication;
 using System.Threading.Tasks;
+using System.Text;
 using Microsoft.JSInterop;
 using Test.Client.Scripts;
 using Test.Client.Services.Auth;
@@ -72,14 +73,14 @@ namespace Test.Client.Scripts.Auth
             {
                 throw new ArgumentException("tools is null");
             }
-                var token = new CancellationTokenSource().Token;
+            HubConnection hubConnection = new HubConnectionBuilder().WithUrl(tools.nav.ToAbsoluteUri("/Loginhub").ToString()).Build();
+            var token = new CancellationTokenSource().Token;
             bool recive = false;
             LoginResult result = new LoginResult();
-            await JSRuntimeExtensions.InvokeVoidAsync(
-                tools.jS, 
-                "Login", 
-                new string[2] {tools.nav.ToAbsoluteUri("/Loginhub").ToString(),tools.hub.ConnectionId});
-            tools.hub.On<string>("LoginCorect", async (message) => {
+            await tools.jS.InvokeVoidAsync(
+                "Login",
+                new string[2] { tools.nav.ToAbsoluteUri("/Loginhub").ToString(), hubConnection.ConnectionId });
+            hubConnection.On<string>("LoginCorect", async (message) => {
                 var a = message.Split(",");
                 result.name = a[1];
                 result.address = a[0];
@@ -98,7 +99,7 @@ namespace Test.Client.Scripts.Auth
             {
                 result.Error = new TimeoutException();
             }
-            await ((SPAAuthticateProvider)_authenticationStateProvider).MarkUserAsAuthenticated(loginModel.UserID, res.IDToken);
+            await ((SPAAuthticateProvider)_authenticationStateProvider).MarkUserAsAuthenticated(loginModel.UserID, result.IDToken);
             return result;
         }
 
@@ -112,16 +113,25 @@ namespace Test.Client.Scripts.Auth
             {
                 throw new ArgumentException("tools is null");
             }
+            HubConnection hubConnection = new HubConnectionBuilder().WithUrl(tools.nav.ToAbsoluteUri("/Loginhub").ToString()).Build();
             var token = new CancellationTokenSource().Token;
             bool recive = false;
             LoginResult result = new LoginResult();
-            tools.hub.On<string>("LoginCorect", async (message) => {
-                var a = message.Split(",");
-                result.name = a[1];
-                result.address = a[0];
-                recive = true;
+            hubConnection.On<string>("LoginCorect", async (message) => {
+                try
+                {
+                    var a = message.Split(",");
+                    result.name = a[1];
+                    result.address = a[0];
+                    result.avater = Encoding.UTF8.GetBytes(a[2]);
+                    result.IDToken = a[3];
+                    recive = true;
+                }catch (Exception ex)
+                {
+                    result.Error = ex;
+                }
             });
-            await tools.hub.SendAsync("MicrosoftLogin", loginModel.UserID, loginModel.Password);
+            await hubConnection.SendAsync("MicrosoftLogin", loginModel.UserID, loginModel.Password);
             for (int i = 0; i < (wait / unit); i++)
             {
                 await Task.Delay(unit);
@@ -134,6 +144,7 @@ namespace Test.Client.Scripts.Auth
             {
                 result.Error = new TimeoutException();
             }
+            await ((SPAAuthticateProvider)_authenticationStateProvider).MarkUserAsAuthenticated(loginModel.UserID, result.IDToken);
             return result;
         }
 
