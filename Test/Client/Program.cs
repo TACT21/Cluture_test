@@ -14,10 +14,10 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 builder.Services.AddOptions();
 builder.Services.AddAuthorizationCore();
 
+builder.Services.AddBlazoredLocalStorage();
+
 builder.Services.AddScoped<AuthenticationStateProvider, SPAAuthticateProvider>();
-builder.Services.AddScoped<ILocalStorageService, LocalStorageService>();
-builder.Services.AddScoped<IAuthService, DummyAuthService>();
-builder.Services.AddScoped<ILocalStorageAuth, LocalStorageAuthticateProvider>();
+builder.Services.AddScoped<IAuthService, Authprovider>();
 builder.Services.AddAuthorizationCore(config =>
 {
     config.AddPolicy("IsAdmin", policy => policy.RequireRole("Admin", "SuperUser"));
