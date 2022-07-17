@@ -28,6 +28,7 @@ namespace Test.Server.Hubs
             await Sendmessage("Login start with" + adress + "," + password);
             string avater = String.Empty;
             string name = String.Empty;
+            UsernamePasswordCredential? userNamePasswordCredential = null;
             try
             {
                 var options = new TokenCredentialOptions
@@ -35,15 +36,20 @@ namespace Test.Server.Hubs
                     AuthorityHost = AzureAuthorityHosts.AzurePublicCloud
                 };
                 // https://docs.microsoft.com/dotnet/api/azure.identity.usernamepasswordcredential
-                var userNamePasswordCredential = new UsernamePasswordCredential(
+                userNamePasswordCredential = new UsernamePasswordCredential(
                     adress, password, tenantId, clientId, options);
-
+            }
+            catch (Exception ex)
+            {
+                await Sendmessage("error," + ex.Message+"@Userlogin");
+            }
+            try { 
                 var graphClient = new GraphServiceClient(userNamePasswordCredential, scopes);
                 //mailaddress
-                var avate = await graphClient.Me.Request().GetAsync();
+                var avate = await graphClient.Me.Request().Select("mail,displayName").GetAsync();
                 await Sendmessage(avate.Mail.ToString());
                 //name
-                name = avate.GivenName;
+                name = avate.DisplayName;
                 //photo
                 var photo = await graphClient.Me.Photo.Content.Request().GetAsync();
                 using (photo)
@@ -69,7 +75,7 @@ namespace Test.Server.Hubs
                 }
             }catch (Exception ex)
             {
-                await Sendmessage("error," + ex.Message );
+                await Sendmessage("error," + ex.ToString());
             }
             Guid myUUId = Guid.NewGuid();
             var integretion = new IntegrationProvider.Provider();
@@ -92,6 +98,7 @@ namespace Test.Server.Hubs
 
         public async Task Sendmessage(string mess, string id = "")
         {
+            Console.WriteLine(mess);
             if (id != "")
             {
                 await Clients.Client(id).SendAsync("DebugLog", mess);

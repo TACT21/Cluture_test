@@ -77,6 +77,7 @@ namespace Test.Client.Scripts.Auth
             var token = new CancellationTokenSource().Token;
             bool recive = false;
             LoginResult result = new LoginResult();
+            await hubConnection.StartAsync();
             await tools.jS.InvokeVoidAsync(
                 "Login",
                 new string[2] { tools.nav.ToAbsoluteUri("/Loginhub").ToString(), hubConnection.ConnectionId });
@@ -113,6 +114,7 @@ namespace Test.Client.Scripts.Auth
             {
                 throw new ArgumentException("tools is null");
             }
+            Console.WriteLine("Done..");
             HubConnection hubConnection = new HubConnectionBuilder().WithUrl(tools.nav.ToAbsoluteUri("/Loginhub").ToString()).Build();
             var token = new CancellationTokenSource().Token;
             bool recive = false;
@@ -131,6 +133,8 @@ namespace Test.Client.Scripts.Auth
                     result.Error = ex;
                 }
             });
+            await hubConnection.StartAsync();
+            Console.WriteLine((hubConnection.State == HubConnectionState.Connected) ? "Conected!" : "Unconected!");
             await hubConnection.SendAsync("MicrosoftLogin", loginModel.UserID, loginModel.Password);
             for (int i = 0; i < (wait / unit); i++)
             {
