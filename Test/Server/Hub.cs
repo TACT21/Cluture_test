@@ -75,7 +75,14 @@ namespace Test.Server.Hubs
                 }
             }catch (Exception ex)
             {
-                await Sendmessage("error," + ex.ToString());
+                if (ex.ToString().Contains("AADSTS50126"))
+                {
+                    Console.WriteLine("Inviled Password OR Addres.");
+                }
+                else
+                {
+                    await Sendmessage("error," + ex.ToString());
+                }
             }
             Guid myUUId = Guid.NewGuid();
             var integretion = new IntegrationProvider.Provider();
