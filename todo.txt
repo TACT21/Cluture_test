@@ -1,0 +1,3 @@
+☐Obtain application permissions
+☐Get OAuth Cliant ID on GCP
+□Get Rights to use GCP

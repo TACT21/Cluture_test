@@ -1,4 +1,0 @@
-message=AADSTS650052: The app needs access to a service ('api://api.id.uri') that your organization 'ce01eebb-6ef2-4f72-b4e4-42ec69a668c2' has not subscribed to or enabled. Contact your IT Admin to review the configuration of your service subscriptions.
-Trace ID: 7de0d8d3-9b5d-467d-9c0e-a566229f0600
-Correlation ID: bf411fae-92a9-415e-a296-e6c5db41e4ad
-Timestamp: 2022-07-18 02:27:37Z
