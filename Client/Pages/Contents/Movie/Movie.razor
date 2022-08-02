@@ -5,16 +5,35 @@
 <h1>Movie</h1>
 
 <section style="grid-row: 3;" class="detail">
-    <h1>Watch more</h1>
+    <h1>Class</h1>
     <div class="links">
         @foreach (var item in classes)
        {
-           <a href="@item.url" class="videocard">
-               <img src="@item.thumbnail"/>
-                   <div>
-                        <h3 class="title">@item.title</h3>
-                </div>
-           </a>
+            <a href="@item.url" class="l-wrapper_01">
+                <article class="card_01">
+                  <div class="card__header_01">
+                    <figure class="card__thumbnail_01">
+                      <img src="@item.thumbnail" alt="サムネイル" class="card__image_01">
+                    </figure>
+                        @if (item.tag)
+                        {
+                            <div class="card_type video">LIVE</div>
+                        }
+                        else
+                        {
+                            <div class="card_type live"><img src="./img/Live.png">LIVE</div>
+                        }
+                    <p class="card__title_01">@item.title</p>
+                  </div>
+                  <div class="card__body_01">
+                    <p class="card__text2_01">@item.org</p>
+                  </div>
+                  <div class="card__footer_01">
+                    <p class="card__text_01"><a href="#" class="button_01 -compact">見る</a></p>
+                  </div>
+      
+                </article>
+            </a>
        }
     </div>
 </section>

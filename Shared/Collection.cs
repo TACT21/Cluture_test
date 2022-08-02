@@ -20,10 +20,11 @@ namespace bluem_of_youth.Shared
     }
     public class LiveLink  : VideoLink
     {
-        public bool tag;
+        public bool tag; // t:video f:live
         public string title;
         public string url;
         public string thumbnail;
+        public string org;
     }
 
 }
