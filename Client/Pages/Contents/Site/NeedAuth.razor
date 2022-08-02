@@ -1,0 +1,27 @@
+﻿@page "/Site/inside/{paramstr}"
+
+<bluem_of_youth.Client.Shared.Error.Error404/>
+<div style="display:none;">
+    <AuthorizeView>
+    <Authorized>
+        @if(content == string.Empty)
+        {
+            <bluem_of_youth.Client.Shared.Error.Error404/>
+        }
+        else
+        {
+            @((MarkupString)content)
+        }
+    </Authorized>
+    <NotAuthorized>
+            <bluem_of_youth.Client.Shared.Error.Error401/>
+    </NotAuthorized>
+</AuthorizeView>
+</div>
+
+@code {
+      [Parameter]
+        public string paramstr { get; set; }
+
+    string? content{ set; get; }
+}

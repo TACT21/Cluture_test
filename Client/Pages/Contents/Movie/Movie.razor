@@ -1,0 +1,26 @@
+﻿@page "/movie/"
+
+@using bluem_of_youth.Shared;
+
+<h1>Movie</h1>
+
+<section style="grid-row: 3;" class="detail">
+    <h1>Watch more</h1>
+    <div class="links">
+        @foreach (var item in classes)
+       {
+           <a href="@item.url" class="videocard">
+               <img src="@item.thumbnail"/>
+                   <div>
+                        <h3 class="title">@item.title</h3>
+                </div>
+           </a>
+       }
+    </div>
+</section>
+
+@code{
+     List<LiveLink> classes = new List<bluem_of_youth.Shared.LiveLink>();
+     List<LiveLink> live = new List<bluem_of_youth.Shared.LiveLink>();
+     List<LiveLink> club = new List<bluem_of_youth.Shared.LiveLink>();
+}

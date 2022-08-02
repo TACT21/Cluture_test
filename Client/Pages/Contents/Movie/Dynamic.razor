@@ -1,0 +1,64 @@
+﻿@page "/movie/{id}"
+
+@using bluem_of_youth.Shared;
+
+<h3>Video</h3>
+
+<h1>It will be soon</h1>
+<section>
+    @*Loading*@
+    @if(state == 0)
+    {
+    
+    }
+    @*On server*@
+    else if(state == 1)
+    {
+        <video id="video" width="400" height="300">
+            @foreach (var item in video.url)
+           {
+                <source src="@item">
+           }
+        </video>
+    }
+    @*Using web service cf.)niconico & youtube etc...*@
+    else if(state == 2)
+    {
+        <iframe src="@video.url[0]"></iframe>
+    }
+    @*Unexpect sorce*@
+    else
+    {
+        <bluem_of_youth.Client.Shared.Error.Error418/>
+    }
+</section>
+<section style="grid-row: 2;" class="detail">
+    <h1>@video.title</h1>
+    <p></p>
+    <div class="button">
+        <a href="">Vote this group</a>
+        <a href="">Show me this class detail</a>
+    </div>
+</section>
+<section style="grid-row: 3;" class="detail">
+    <h1>Watch more</h1>
+    <div class="links">
+        @foreach (var item in videos)
+       {
+           <a href="@item.url" class="videocard">
+               <img src="@item.thumbnail"/>
+                   <div>
+                        <h3 class="title">@item.title</h3>
+                </div>
+           </a>
+       }
+    </div>
+</section>
+
+@code {
+    [Parameter]
+    public string? id{ set; get; }
+    public byte state = 0;
+    List<VideoLink> videos = new List<bluem_of_youth.Shared.VideoLink>();
+    Video video = new Video();
+}

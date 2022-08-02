@@ -19,6 +19,7 @@ builder.Services.AddMsalAuthentication(options =>
     options.ProviderOptions.DefaultAccessTokenScopes.Add("api://453fa4c2-fc1a-45be-ba70-7c7dd5070f7a/access_as_user");
     //options.ProviderOptions.DefaultAccessTokenScopes.Add("api://api.id.uri/access_as_user");
     options.ProviderOptions.DefaultAccessTokenScopes.Add("https://graph.microsoft.com/User.Read");
+    options.ProviderOptions.LoginMode = "redirect";
 });
 
 await builder.Build().RunAsync();
