@@ -1,45 +1,82 @@
 ﻿@page "/movie/"
 
 @using bluem_of_youth.Shared;
+@using Microsoft.AspNetCore.SignalR.Client
+
+@inject NavigationManager NavigationManager
+
+@implements IAsyncDisposable
 
 <h1>Movie</h1>
 
 <section style="grid-row: 3;" class="detail">
-    <h1>Class</h1>
-    <div class="links">
-        @foreach (var item in classes)
-       {
-            <a href="@item.url" class="l-wrapper_01">
-                <article class="card_01">
-                  <div class="card__header_01">
-                    <figure class="card__thumbnail_01">
-                      <img src="@item.thumbnail" alt="サムネイル" class="card__image_01">
-                    </figure>
-                        @if (item.tag)
-                        {
-                            <div class="card_type video">LIVE</div>
-                        }
-                        else
-                        {
-                            <div class="card_type live"><img src="./img/Live.png">LIVE</div>
-                        }
-                    <p class="card__title_01">@item.title</p>
-                  </div>
-                  <div class="card__body_01">
-                    <p class="card__text2_01">@item.org</p>
-                  </div>
-                  <div class="card__footer_01">
-                    <p class="card__text_01"><a href="#" class="button_01 -compact">見る</a></p>
-                  </div>
-      
-                </article>
-            </a>
+        @foreach (var list in videos)
+        {
+            <div class="links">
+            <h1>@list.Key</h1>
+            @foreach (var item in list.Value)
+            {
+                <a href="@item.url" class="l-wrapper_01">
+                    <article class="card_01">
+                        <div class="card__header_01">
+                            <figure class="card__thumbnail_01">
+                                <img src="@item.thumbnail" alt="サムネイル" class="card__image_01">
+                            </figure>
+                            @if (item.tag)
+                            {
+                                <div class="card_type video"><span class="fi-media-play"></span>LIVE</div>
+                            }
+                            else
+                            {
+                                <div class="card_type live"><span class="fi-video"></span>LIVE</div>
+                            }
+                            <p class="card__title_01">@item.title</p>
+                        </div>
+                        <div class="card__body_01">
+                        <p class="card__text2_01">@item.org</p>
+                        </div>
+                    </article>
+                </a>
+            }
+        </div>
        }
-    </div>
 </section>
 
 @code{
-     List<LiveLink> classes = new List<bluem_of_youth.Shared.LiveLink>();
-     List<LiveLink> live = new List<bluem_of_youth.Shared.LiveLink>();
-     List<LiveLink> club = new List<bluem_of_youth.Shared.LiveLink>();
+    public  Dictionary<string, List<LiveLink>> videos = new Dictionary<string, List<LiveLink>>();
+    private HubConnection? hubConnection;
+
+     protected override async Task OnInitializedAsync()
+    {
+        hubConnection = new HubConnectionBuilder()
+            .WithUrl(NavigationManager.ToAbsoluteUri("/VideoHub"))
+            .Build();
+
+        hubConnection.On<Dictionary<string, List<LiveLink>>>("SetLink", (links) =>
+        {
+            videos = links;
+            InvokeAsync(StateHasChanged);
+        });
+
+        await hubConnection.StartAsync();
+    }
+
+    private async Task Send()
+    {
+        if (hubConnection is not null)
+            {
+                await hubConnection.SendAsync("GetVideos");
+            }
+    }
+
+    public bool IsConnected =>
+        hubConnection?.State == HubConnectionState.Connected;
+
+    public async ValueTask DisposeAsync()
+    {
+        if (hubConnection is not null)
+        {
+            await hubConnection.DisposeAsync();
+        }
+    }
 }

@@ -1,6 +1,11 @@
 ﻿@page "/movie/{id}"
 
 @using bluem_of_youth.Shared;
+@using Microsoft.AspNetCore.SignalR.Client
+
+@inject NavigationManager NavigationManager
+
+@implements IAsyncDisposable
 
 <h3>Video</h3>
 
@@ -59,6 +64,41 @@
     [Parameter]
     public string? id{ set; get; }
     public byte state = 0;
-    List<VideoLink> videos = new List<bluem_of_youth.Shared.VideoLink>();
+    List<VideoLink> videos = new List<VideoLink>();
     Video video = new Video();
+    private HubConnection? hubConnection;
+
+     protected override async Task OnInitializedAsync()
+    {
+        hubConnection = new HubConnectionBuilder()
+            .WithUrl(NavigationManager.ToAbsoluteUri("/VideoHub"))
+            .Build();
+
+        hubConnection.On<List<VideoLink>>("SetLink", (links) =>
+        {
+            videos = links;
+            InvokeAsync(StateHasChanged);
+        });
+
+        await hubConnection.StartAsync();
+    }
+
+    private async Task Send()
+    {
+        if (hubConnection is not null)
+            {
+                await hubConnection.SendAsync("GetLinks",id);
+            }
+    }
+
+    public bool IsConnected =>
+        hubConnection?.State == HubConnectionState.Connected;
+
+    public async ValueTask DisposeAsync()
+    {
+        if (hubConnection is not null)
+        {
+            await hubConnection.DisposeAsync();
+        }
+    }
 }
