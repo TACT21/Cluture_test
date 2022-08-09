@@ -8,8 +8,11 @@
 @implements IAsyncDisposable
 
 <h1>Movie</h1>
-
-<section style="grid-row: 3;" class="detail">
+@if(ex != null)
+{
+        <bluem_of_youth.Client.Shared.Error.Error404 Errormessage="@ex.Message"/>
+}else{
+    <section style="grid-row: 3;" class="detail">
         @foreach (var list in videos)
         {
             <div class="links">
@@ -37,40 +40,40 @@
                         </div>
                     </article>
                 </a>
-            }
-        </div>
-       }
-</section>
+             }
+            </div>
+           }
+    </section>
+}
 
 @code{
     public  Dictionary<string, List<LiveLink>> videos = new Dictionary<string, List<LiveLink>>();
     private HubConnection? hubConnection;
+    private Exception? ex = null;
 
-     protected override async Task OnInitializedAsync()
+    protected override async Task OnInitializedAsync()
     {
-        hubConnection = new HubConnectionBuilder()
-            .WithUrl(NavigationManager.ToAbsoluteUri("/VideoHub"))
-            .Build();
-
-        hubConnection.On<Dictionary<string, List<LiveLink>>>("SetLink", (links) =>
+        try
         {
-            videos = links;
-            InvokeAsync(StateHasChanged);
-        });
+            hubConnection = new HubConnectionBuilder()
+                .WithUrl(NavigationManager.ToAbsoluteUri("/VideoHub"))
+                .Build();
 
-        await hubConnection.StartAsync();
-    }
-
-    private async Task Send()
-    {
-        if (hubConnection is not null)
+            hubConnection.On<Dictionary<string, List<LiveLink>>>("SetLink", (links) =>
             {
-                await hubConnection.SendAsync("GetVideos");
-            }
-    }
+                videos = links;
+                InvokeAsync(StateHasChanged);
+            });
 
-    public bool IsConnected =>
-        hubConnection?.State == HubConnectionState.Connected;
+            await hubConnection.StartAsync();
+            await hubConnection.SendAsync("GetVideos");
+        }catch(Exception e)
+        {
+            ex = e;
+            await InvokeAsync(StateHasChanged);
+        }
+    
+    }
 
     public async ValueTask DisposeAsync()
     {
