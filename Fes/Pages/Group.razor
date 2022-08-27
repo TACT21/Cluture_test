@@ -1,0 +1,36 @@
+﻿@page "/group/{groupId}"
+@page "/group"
+
+@using System;
+@using System.Net.Http;
+@using System.Threading.Tasks;
+@using System.Collections.Generic;
+@using System.Text;
+@using Fes.Shared;
+
+<h3>Component</h3>
+
+@code {
+    [Parameter]
+    public string? groupId { set; get; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        HttpClient client = new HttpClient();
+        var param = new Dictionary<string, object>()
+            {
+                ["id"] = groupId,
+            };
+        var jsonString = System.Text.Json.JsonSerializer.Serialize(param);
+        var content = new StringContent(jsonString, Encoding.UTF8, @"application/json");
+        //POST
+        var result = await client.PostAsync(@"https://prod2-10.japaneast.logic.azure.com:443/workflows/69edb18e7b5d4c6e9d2bb99558f6d4b0/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=OvkgP68zZPP6oob6V1rLRPVlK-84qqRVftMpQuQpYhM", content);
+        Console.WriteLine($"{(int)result.StatusCode},{ result.StatusCode }");
+        var body = await result.Content.ReadAsStringAsync();
+        List<Org> orgDetail = System.Text.Json.JsonSerializer.Deserialize<List<Org>>(body);
+        List<Media>? images =  System.Text.Json.JsonSerializer.Deserialize<List<Media>>(orgDetail[0].posterUrl);
+        List<Media>? videos =  System.Text.Json.JsonSerializer.Deserialize<List<Media>>(orgDetail[0].videoUrl);
+
+        
+    }
+}

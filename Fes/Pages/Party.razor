@@ -1,0 +1,110 @@
+﻿@page "/party"
+@page "/party/{groupId}"
+
+@using System;
+@using System.Net.Http;
+@using System.Threading.Tasks;
+@using System.Collections.Generic;
+@using System.Text;
+@using Fes.Shared;
+@using Microsoft.Graph;
+@using Azure.Identity:
+<section>
+    <div>
+        <h1>@jp</h1>
+        <p>@en</p>
+    </div>
+    <picture>
+        @foreach (var item in images)
+        {
+            <img src="@(mediabase + item.url + item.type)"/> 
+        }
+    </picture>
+</section>
+<section>
+    <article>
+            <p>@comment</p>
+            <div>
+                <a href="@(votebase + groupId)" class="btn">Vote</a>
+            </div>
+    </article>
+</section>
+<section>
+    <div>
+        <span class="oi" data-glyph="video"></span>
+        <div>
+            <h3>CM</h3>
+            <p>企画紹介動画</p>
+        </div>
+        
+    </div>
+
+    <article>
+            <div>
+                <button class="btn">CM</button>
+            </div>
+            <div>
+                <video controls>
+                    @foreach (var item in images)
+                    {
+                        <source src="@(mediabase + item.url + item.type)"/> 
+                    }
+                </video>
+            </div>
+    </article>
+</section>
+<section>
+    <div>
+        <span class="oi" data-glyph="map-marker"></span>
+        <div>
+            <h3>Location</h3>
+            <p>場所</p>
+        </div>
+    </div>
+    <article>
+            <p><span>@location</span></p>
+            <div>
+                @if(Int32.Parse(groupId) < 2000)
+                {
+                    @*中央棟*@
+
+                }
+                else if(Int32.Parse(groupId) >= 2000 && Int32.Parse(groupId)< 3000)
+                {
+                    @*高校棟*@
+                    <div style="position: relative; width: 100%; height: 0; padding-top: 56.2500%;
+                     padding-bottom: 48px; box-shadow: 0 2px 8px 0 rgba(63,69,81,0.16); margin-top: 1.6em; margin-bottom: 0.9em; overflow: hidden;
+                     border-radius: 8px; will-change: transform;">
+                      <iframe loading="lazy" style="position: absolute; width: 100%; height: 100%; top: 0; left: 0; border: none; padding: 0;margin: 0;"
+                        src="https:&#x2F;&#x2F;www.canva.com&#x2F;design&#x2F;DAFJrZpTaII&#x2F;view?embed" allowfullscreen="allowfullscreen" allow="fullscreen">
+                      </iframe>
+                    </div>
+
+                }else if(Int32.Parse(groupId) >= 3000 && Int32.Parse(groupId)< 4000)
+                {
+                    @*中学棟*@
+
+                }else if(Int32.Parse(groupId) >= 2000 && Int32.Parse(groupId)< 3000)
+                {
+                    @*ホール棟*@
+
+                }
+        </div>
+    </article>
+</section>
+
+
+@code {
+    [Parameter]
+    public string? groupId { set; get; }
+
+    private List<Media>? images;
+    private List<Media>? videos;
+    private string jp = string.Empty;
+    private string en = string.Empty;
+    private string location = string.Empty;
+    private string comment = string.Empty;
+
+    private static readonly string mediabase = string.Empty;
+    private static readonly string votebase = string.Empty;
+}
