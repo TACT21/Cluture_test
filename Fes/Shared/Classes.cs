@@ -7,11 +7,13 @@ namespace Fes.Shared
     class Org
     {
         [JsonPropertyName("Id")] public string id { get; set; }
-        [JsonPropertyName("Name")] public int name { get; set; }
-        [JsonPropertyName("PosterURL")] public int posterUrl { get; set; }
-        [JsonPropertyName("VideoLink")] public int videoUrl { get; set; }
-        [JsonPropertyName("Comment")] public int comment { get; set; }
-        [JsonPropertyName("Location")] public int location { get; set; }
+        [JsonPropertyName("Name")] public string name { get; set; }
+        [JsonPropertyName("PosterURL")] public string? posterUrl { get; set; }
+        [JsonPropertyName("Comment")] public string? comment { get; set; }
+        [JsonPropertyName("VideoLink")] public string? videoUrl { get; set; }
+        [JsonPropertyName("CMLink")] public string? cmUrl { get; set; }
+        [JsonPropertyName("Location")] public string? location { get; set; }
+        [JsonPropertyName("ContentLink")] public string? contentUrl { get; set; }
     }
     
     class Media

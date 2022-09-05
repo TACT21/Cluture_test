@@ -14,3 +14,7 @@
     new_element.remove();
     return true;
 }
+
+function jumpto(url) {
+    location.href = url;
+}

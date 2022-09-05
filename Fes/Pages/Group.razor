@@ -1,5 +1,4 @@
 ﻿@page "/group/{groupId}"
-@page "/group"
 
 @using System;
 @using System.Net.Http;
@@ -7,12 +6,120 @@
 @using System.Collections.Generic;
 @using System.Text;
 @using Fes.Shared;
+@using Microsoft.JSInterop
 
-<h3>Component</h3>
+@inject IJSRuntime js
+
+<section class="header">
+    <p class="orgTitle">@detail.name</p>
+    <img src="@detail.posterUrl" alt="@(detail.name + "のポスター")"/>
+</section>
+@if(isCm|| isVideo)
+    {
+    <section class="cm">
+        <div class="sectitle">
+            <h2><span/>Movie</h2>
+            <h3>Cmと動画</h3>
+        </div>    
+        <div class="content">
+            <div>
+                @if (isCm)
+                {
+                    <button class="btn" onclick="@VideoChenge(detail.cmUrl)">CM</button>
+                }
+                else
+                {
+                    <p class="btn">CM</p>
+                }
+                @if (isCm)
+                {
+                    <button class="btn" onclick="@VideoChenge(detail.videoUrl)">紹介動画</button>
+                }
+                else
+                {
+                    <p class="btn">紹介動画</p>
+                }
+            </div>
+            <div>
+                <video controls>
+                    @foreach (var item in Videos)
+                    {
+                        <source type="@item.type" src="@item.url">
+                    }
+                    <source type="image/svg+xml" src="./img/404.svg"/>
+                </video>
+            </div>
+        </div>
+    </section>
+}
+
+<section class="location">
+        <div class="sectitle">
+            <h2><span/>Movie</h2>
+            <h3>Cmと動画</h3>
+        </div>    
+        <div class="content">
+            <div>
+                <p>@detail.location</p>
+            </div>
+            @if(detail.location.IndexOf("中央棟") != -1)
+            {
+                <div class="canva">
+                    <iframe loading="lazy" class="canva_fream"
+                    src="https:&#x2F;&#x2F;www.canva.com&#x2F;design&#x2F;DAFJrf--nMY&#x2F;view?embed" allowfullscreen="allowfullscreen" allow="fullscreen">
+                    </iframe>
+                </div>
+            }else if(detail.location.IndexOf("高校棟") != -1)
+            {
+                <div class="canva">
+                  <iframe loading="lazy" class="canva_fream"
+                    src="https:&#x2F;&#x2F;www.canva.com&#x2F;design&#x2F;DAFJrZpTaII&#x2F;view?embed" allowfullscreen="allowfullscreen" allow="fullscreen">
+                  </iframe>
+                </div>
+            }else if(detail.location.IndexOf("中学棟") != -1)
+            {
+                <div  class="canva">
+                  <iframe loading="lazy" class="canva_fream"
+                    src="https:&#x2F;&#x2F;www.canva.com&#x2F;design&#x2F;DAFJrQFLmwQ&#x2F;view?embed" allowfullscreen="allowfullscreen" allow="fullscreen">
+                  </iframe>
+                </div>
+            }else if(detail.location.IndexOf("ホール棟") != -1)
+            {
+                <div class="canva">
+                  <iframe loading="lazy" class="canva_fream"
+                    src="https:&#x2F;&#x2F;www.canva.com&#x2F;design&#x2F;DAFJrf2f2jk&#x2F;view?embed" allowfullscreen="allowfullscreen" allow="fullscreen">
+                  </iframe>
+                </div>
+            }else{
+                <div class="canva">
+                  <iframe loading="lazy" class="canva_fream"
+                    src="https:&#x2F;&#x2F;www.canva.com&#x2F;design&#x2F;DAFJrVr6Rg0&#x2F;view?embed" allowfullscreen="allowfullscreen" allow="fullscreen">
+                  </iframe>
+                </div>
+            }
+         </div>
+</section>
+<section class="vote">
+    <div class = "coment">
+        @detail.comment
+    </div>
+    <div class = "coment">
+        <button class="btn" onclick="@Vote()">この団体に投票する</button>
+        @if(detail.contentUrl != "")
+        {
+            <a class="btn" href="@detail.contentUrl">この団体のオンラインコンテンツへ</a>
+        }
+    </div>
+</section>
 
 @code {
     [Parameter]
     public string? groupId { set; get; }
+
+    private Org? detail = null;
+    private List<Media>? Videos;
+    private bool isCm;
+    private bool isVideo;
 
     protected override async Task OnInitializedAsync()
     {
@@ -28,9 +135,31 @@
         Console.WriteLine($"{(int)result.StatusCode},{ result.StatusCode }");
         var body = await result.Content.ReadAsStringAsync();
         List<Org> orgDetail = System.Text.Json.JsonSerializer.Deserialize<List<Org>>(body);
-        List<Media>? images =  System.Text.Json.JsonSerializer.Deserialize<List<Media>>(orgDetail[0].posterUrl);
-        List<Media>? videos =  System.Text.Json.JsonSerializer.Deserialize<List<Media>>(orgDetail[0].videoUrl);
+        detail = orgDetail[0];
+        StateHasChanged();
+    }
 
-        
+    private async Task VideoChenge(string json)
+    {
+        Videos = System.Text.Json.JsonSerializer.Deserialize<List<Media>>(json);
+        StateHasChanged();
+    }
+
+    private async Task Vote()
+    {
+        string url = "https://script.google.com/a/macros/sit-kashiwa.com/s/AKfycbzevGdW9UVerFOP7KCeAIm1Gtu61dW568a3yBkLrDNZlz2_BVIE9Bu3Tnl1-stJNCcY5Q/exec";
+        string student = "";
+        string outside = "";
+        HttpClient client = new HttpClient();
+        string body = await client.GetAsync(url).Result.Content.ReadAsStringAsync();
+        //Google apps script へアクセスして学生判定
+        if(body == "masuofes")
+        {
+            await js.InvokeVoidAsync("jumpto",student);
+        }
+        else
+        {
+            await js.InvokeVoidAsync("jumpto",outside);
+        }
     }
 }
