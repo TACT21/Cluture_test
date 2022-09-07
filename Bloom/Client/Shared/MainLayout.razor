@@ -1,0 +1,34 @@
+﻿@inherits LayoutComponentBase
+
+@inject IJSRuntime js
+
+<div class="page">
+    <main>
+        @if (inCommite)
+        {
+            <div class="top-bar">
+                <NavMenu />
+            </div>
+            <article class="content">
+                @Body
+            </article>
+            <div class="bottom-bar">
+            </div>
+        }
+        else
+        {
+            @Body
+        }
+    </main>
+</div>
+
+@code{
+    public bool inCommite = true;
+    protected override async Task OnInitializedAsync() {
+        var a = await js.InvokeAsync<string>("Org");
+        if(a == "commite")
+        {
+            inCommite = true;
+        }
+    }
+}

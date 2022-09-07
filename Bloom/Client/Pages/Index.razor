@@ -1,0 +1,127 @@
+﻿@page "/"
+@page "/Index/{param}"
+@page "/Index"
+@inject IJSRuntime jSRuntime
+<article class="attention">
+        <p>今年度は事前に応募いただいた保護者・受験生のみ来場可能となります</p>
+        <a href="https://www.ka.shibaura-it.ac.jp/%e6%96%87%e5%8c%96%e7%a5%ad-%e5%a4%96%e9%83%a8%e5%85%ac%e9%96%8b%e3%81%ab%e3%81%a4%e3%81%84%e3%81%a6/" class="btn">応募はこちらから</a>
+        <a href="" class="btn">ご来校にあたっての注意</a>
+</article>
+<header>
+    <div>
+          <h2>第43回増穂祭</h2>
+          <h1>青瞬</h1>
+          <h2>2022/9/23,24</h2>
+    </div>
+    <button  @onclick="onbottom" class="scroll_container">
+      <div class="chevron"></div>
+      <div class="chevron"></div>
+      <div class="chevron"></div>
+      <span class="text">Scroll down</span>
+    </button>
+</header>
+<section id="main">
+    <div class="article-title"><div class="popout"><span>Thema</span></div><p>テーマ</p></div>
+    <article class="theme">
+        <div class="thumbnail" >
+            <img src="./img/index/thema.jpg"/>
+        </div>
+        <div style="text-align:  center; max-width: 600px;">
+            今年度の増穂祭のテーマは<br>
+            「青瞬」です<br>
+            新型コロナウイルスにより<br>
+            思うようにいかないことも<br>
+            たくさんありましたが<br>
+            久しぶりの対面文化祭を<br>
+            思いっきり楽しみ<br>
+            短い中学高校生活という<br>
+            一瞬の青春を全力で駆け抜けよう<br>
+            という思いが込められています
+         </div>
+    </article>
+    <article style="background-image:linear-gradient(rgba(0,0,0,0.4),rgba(0,0,0,0.4)),url(./img/index/info.png)">
+        <div class="article-title"><div class="popout"><span>Info</span></div><p>開催概要</p></div>
+        <p class="sentence">
+            第43回増穂祭「青瞬」<br/>
+            日程：2022年9月23日(金)11:00-16:00,  24日(土)10:00-15:00<br/>
+            場所：芝浦工業大学柏中学高等学校<br/>
+        </p>
+    </article>
+    <article style="background-image:linear-gradient(rgba(0,0,0,0.4),rgba(0,0,0,0.4)),url(./img/index/info.png)">
+        <div class="article-title"><div class="popout"><span>Map</span></div><p>団体情報・フロアマップ</p></div>
+        <p class="sentence">
+            各参加団体の情報や、フロアマップはこちらから<br/>
+            <a href="" class="btn">各参加団体の検索</a>
+            <a href="" class="btn">マップ</a>
+        </p>
+    </article>
+    <article style="background-image:linear-gradient(rgba(0,0,0,0.4),rgba(0,0,0,0.4)),url(./img/index/info.png)">
+        <div class="article-title"><div class="popout"><span>Schedule</span></div><p>会場スケジュール</p></div>
+        <p class="sentence">
+            イベントの詳細やタイムテーブルはこちらから<br/>
+            <a href="" class="btn">イベント詳細・タイムテーブル  ➣</a>
+        </p>
+    </article>
+</section>
+<section id="links">
+    <div class="article-title"><div class="popout"><span>Link</span></div><p>リンク</p></div>
+    <article class="theme">
+        <a class="l-wrapper card-radius">
+          <article class="card">
+            <div class="card__header">
+              <p class="card__title">しばかっしー公式サイト</p>
+              <div class="card__thumbnail">
+                <figure>
+                    <img src="./img/index/shibakashi.png" alt="サムネイル" class="card__image">
+                </figure>
+              </div>
+            </div>
+          </article>
+        </a>
+        <a class="l-wrapper card-radius">
+          <article class="card">
+            <div class="card__header">
+              <p class="card__title">公式Youtube</p>
+              <div class="card__thumbnail">
+                <figure>
+                    <img src="./img/index/shibakashi.png" alt="サムネイル" class="card__image">
+                </figure>
+              </div>
+            </div>
+          </article>
+        </a>
+    </article>
+</section>
+
+
+@code {
+    [Parameter]
+    public string param { set; get; } = string.Empty;
+    /// <summary>
+    /// ジャンプ
+    /// </summary>
+    void jump(string to)
+    {
+        jSRuntime.InvokeAsync<bool>("scrollToElementId", to);
+    }
+
+    void onbottom()
+    {
+        jump("main");
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            Console.WriteLine(param);
+            if(param != string.Empty)
+            {
+                jump(param.Replace("#",""));
+            }
+        }catch(Exception ex)
+        {
+            Console.WriteLine(ex);
+        }
+    }
+}
