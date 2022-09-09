@@ -1,5 +1,124 @@
-﻿<h3>Org</h3>
+﻿@using Bloom.Shared
+
+<header>
+    <div>
+        <div>
+            <p class="title">@detail.name</p>
+            <p class="subtitle">@detail.enname</p>
+        </div>
+    </div>
+    <img src="" class="poster"/>
+</header>
+@if(isCM || isMovie)
+{
+    <section>
+        <article>
+            <div>
+                <h3 class="section title">
+                    @if (isFun)
+                    {
+                        <img src="./img/icon/love.svg" class="icon"/>
+                    }
+                    else
+                    {
+                        <img src="./img/icon/video.svg" class="icon"/>
+                    }
+                    Video
+                </h3>
+                <p>動画とCM</p>
+            </div>
+            <div>
+                @if (isCM && isMovie)
+                {
+                    <button class="btn" onclick="@Change(ChangeTo.Cm)">CM</button>
+                    <button class="btn" onclick="@Change(ChangeTo.Movie)">Video</button>
+                }
+                @if(media == ChangeTo.Cm)
+                {
+                    <button class="btn" onclick="@Change(ChangeTo.Movie)"><img src="~/img/icon/good.svg"  alt="投票!"/></button>
+                }
+            </div>
+        </article>
+        <article>
+            @if(media == ChangeTo.Cm && detail.cmUrl[0].isfream)
+            {
+                @((MarkupString)detail.cmUrl[0].Url);
+            }else if(media == ChangeTo.Cm && !detail.cmUrl[0].isfream)
+            {
+                <video>
+                @foreach (var item in detail.cmUrl)
+                {
+                        <source src="@item.Url"/>
+                }
+                </video>
+            }else if(media == ChangeTo.Movie && detail.videoUrl[0].isfream)
+            {
+                @((MarkupString)detail.videoUrl[0].Url);
+            }else if(media == ChangeTo.Movie && !detail.videoUrl[0].isfream)
+            {
+                <video>
+                @foreach (var item in detail.videoUrl)
+                {
+                        <source src="@item.Url"/>
+                }
+                </video>
+            }
+            else
+            {
+                <div>
+                    <img src="~/img/404.svg"/>
+                    <p class="error">すみません。お探しのコンテンツは見つかりませんでした。再読み込みしてみてください。</p>
+                </div>
+            }
+        </article>
+    </section>
+}
+<section>
+    <div>
+        <h3 class="section title"><img src="./img/icon/map.svg" class="icon"/>Map</h3>
+        <p>場所</p>
+    </div>
+    <article>
+        <p>@detail.location</p>
+        @if(detail.location.IndexOf("高校棟") != -1)
+        {
+
+        }
+        else if(detail.location.IndexOf("高校棟") != -1)
+        {
+
+        }
+        else if(detail.location.IndexOf("高校棟") != -1)
+        {
+
+        }
+        else if(detail.location.IndexOf("高校棟") != -1)
+        {
+
+        }
+        else{
+
+        }
+    </article>
+</section>
+
+
 
 @code {
+    public Group detail = new Group();
+    public bool isFun { set; get; }
+    public bool isCM { set; get; }
+    public bool isMovie { set; get; }
+    public ChangeTo media;
+    public enum ChangeTo
+    {
+        Cm = 1,
+        Movie
+    }
 
+    public async Task Change(ChangeTo identifer)
+    {
+        media = identifer;
+        StateHasChanged();
+    }
 }

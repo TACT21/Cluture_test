@@ -1,0 +1,7 @@
+﻿function LocalStorageGet() {
+
+}
+
+function LocalStorageSet() {
+
+}
