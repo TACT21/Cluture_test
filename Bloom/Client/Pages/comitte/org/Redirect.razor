@@ -1,0 +1,10 @@
+﻿@page "/Company"
+
+@inject NavigationManager nV
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        nV.NavigateTo($"/Map", false);
+    }
+}

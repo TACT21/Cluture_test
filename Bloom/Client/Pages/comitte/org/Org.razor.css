@@ -1,2 +1,28 @@
-﻿body {
+﻿.contener {
+    display: flex;
+    align-items: center;
+    justify-content:space-around;
+}
+
+.btn {
+    display: inline-block;
+    padding: 7px 20px;
+    border-radius: 25px;
+    text-decoration: none;
+    color: #fff;
+    background-color: #245;
+    transition: .4s;
+}
+
+.btn:hover {
+    color: #245;
+    background-color: #fff;
+}
+
+.vote {
+    background-image: linear-gradient(45deg, #FFC107 0%, #ff8b5f 100%);
+}
+
+.vote:hover {
+    background-image: linear-gradient(45deg, #FFC107 0%, #f76a35 100%);
 }

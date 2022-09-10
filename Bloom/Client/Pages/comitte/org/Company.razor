@@ -1,0 +1,76 @@
+﻿@page "/Company/{id}"
+
+@using Microsoft.AspNetCore.SignalR.Client
+@using Bloom.Shared
+
+@inject NavigationManager nV
+
+
+@if(state == 0){
+    <div class="loading">
+        <div aria-busy="true" aria-label="Loading" role="progressbar" class="container">
+            <div class="swing">
+                <div class="swing-l"></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div class="swing-r"></div>
+            </div>
+            <div class="shadow">
+                <div class="shadow-l"></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div class="shadow-r"></div>
+            </div>
+            <p>読み込み中...</p>
+        </div>
+    </div>
+}else if(state == 1){
+}else{
+    <Bloom.Client.Pages.error._404/>
+}
+
+
+@code {
+    [Parameter]
+    public string? id { set; get; }
+    private HubConnection? hubConnection = null;
+    private Group? group;
+    private byte state = 0;
+    protected override async Task OnInitializedAsync()
+    {
+        if (id == null || id == ""){
+            nV.NavigateTo($"/Map", false);
+        }
+        try{
+            hubConnection = new HubConnectionBuilder().WithUrl(nV.ToAbsoluteUri("/companyhub")).Build();
+            hubConnection.On<Group>("ReceiveCompany", (message) =>
+            {
+                if (message != null)
+                {
+                    state = 1;
+                    group = message;
+                }
+                else
+                {
+                    state = 2;
+                }
+                StateHasChanged();
+            });
+            await hubConnection.StartAsync();
+            await hubConnection.SendAsync("ClaimCompany");
+            await Task.Delay(10000);
+            if (state == 0)
+            {
+                state = 2;
+            }
+        }catch{
+            state = 3;
+        }
+    }
+}
