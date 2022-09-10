@@ -1,8 +1,61 @@
 ﻿@using Bloom.Client
+<h2>Map</h2>
 
-<h3>Map</h3>
+<div class="tabs">
+    <InputRadioGroup class="building" Name="product" ValueChanged="@((MapKind id) => Chenged(id))">
+        <InputRadio Name="product" Value="@MapKind.Gernal" id="r01" /><label class="btn" for="r01">全体図</label>
+        <InputRadio Name="product" Value="@MapKind.Central" id="r02" /><label class="btn" for="r02">中央棟</label>
+        <InputRadio Name="product" Value="@MapKind.High" id="r03" /><label class="btn" for="r03">高校棟</label>
+        <InputRadio Name="product" Value="@MapKind.Junior" id="r04" /><label class="btn" for="r04">中学棟</label>
+        <InputRadio Name="product" Value="@MapKind.Hall" id="r05" /><label class="btn" for="r05">ホール棟</label>
+    </InputRadioGroup>
+    <div class="map">
+        <Atlas floorIdentify="@floor"/>
+    </div>
+    @if(mapId != MapKind.Gernal){
+        <div class="floor">
+            <InputRadioGroup class="building" Name="product" ValueChanged="@((byte id ) => Froor(id))">
+                @for (byte i = 0; i < maxdic[mapId]; i++)
+                {
+                        <InputRadio Name="product" Value="@i" id="r01" />
+
+                    <label class="btn-floor" for="r01">@(i.ToString() + "F")</label>
+                }
+
+            </InputRadioGroup>
+        </div>
+    }
+</div>
 
 
-@code {
+@code{
+    public enum MapKind
+    {
+        Gernal = 0,
+        Central = 1,
+        High = 2,
+        Junior = 3,
+        Hall = 4,
+    }
+    Dictionary<MapKind,int> maxdic = new Dictionary<MapKind, int>(){
+        {MapKind.Central , 3 },
+        {MapKind.High , 5},
+        {MapKind.Junior , 4},
+        {MapKind.Hall , 4},
+    };
+    private MapKind mapId;
+    private byte floor = 0;
+    private int selected;
+    private void Chenged(MapKind kind){
+        if(kind == MapKind.Gernal){
+            floor = 0;
+        }else{
+            mapId = kind;
+        }
+    }
 
+    private void Froor (byte id){
+        floor = Convert.ToByte((int)mapId * 10 + id);
+        StateHasChanged();
+    }
 }
