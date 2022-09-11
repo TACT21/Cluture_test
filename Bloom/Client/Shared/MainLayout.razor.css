@@ -82,3 +82,36 @@ main {
 .content{
     margin-top:4rem;
 }
+
+.bottom-bar {
+    padding-top:1rem;
+    width: 100vw;
+    background: #FFFFEC;
+    color: rgb(75,75,75);
+}
+
+.madeby{
+    text-align:center;
+    width:100vw;
+}
+
+.link {
+    display:flex;
+    justify-content:center;
+}
+
+.link a {
+    display:block;
+    margin:.5em
+}
+
+    .link a img {
+        width: 4rem;
+        min-width: 20px;
+    }
+
+.content, .bottom-bar{
+    width:100vw;
+    overflow-x:inherit;
+
+}

@@ -1,0 +1,114 @@
+﻿@using Microsoft.AspNetCore.SignalR.Client
+
+@inject IJSRuntime js
+@inject NavigationManager NavigationManager
+
+@implements IAsyncDisposable
+
+@*<img src="@maps[floorIdentify]" style ="width:50rem;" alt="地図">*@
+<div style="position: relative; width: 100%; height: 0; padding-top: 56.2500%;
+ padding-bottom: 48px; box-shadow: 0 2px 8px 0 rgba(63,69,81,0.16); margin-top: 1.6em; margin-bottom: 0.9em; overflow: hidden;
+ border-radius: 8px; will-change: transform;">
+  <iframe loading="lazy" style="position: absolute; width: 100%; height: 100%; top: 0; left: 0; border: none; padding: 0;margin: 0;"
+    src="@url" allowfullscreen="allowfullscreen" allow="fullscreen">
+  </iframe>
+</div>
+
+
+@code {
+                /*format : xy
+                x:building number
+                sets{
+                0,Gernal (y = 0)
+                1,Central building (y <4)
+                2,Highshool building(y < 6)
+                3,Junior high school building (y < 5)
+                4,hall building(y < 5)
+            }
+            y:Floor number
+            (e.g.: 13 mean "3rd floor of central building")
+    */
+    [Parameter]
+    public byte floorIdentify{ set; get;}
+    private HubConnection? hubConnection = null;
+    string url = string.Empty;
+    public async Task Gain()
+    {
+        Console.WriteLine(floorIdentify);
+        if (floorIdentify > 40)
+        {
+            url = "https://www.canva.com/design/DAFJrf2f2jk/view?embed";
+        }else if (floorIdentify > 30)
+        {
+            url = "https://www.canva.com/design/DAFJrQFLmwQ/view?embed";
+        }else if (floorIdentify > 20)
+        {
+            url = "https://www.canva.com/design/DAFJrZpTaII/view?embed";
+        }else if (floorIdentify > 10)
+        {
+            url = "https://www.canva.com/design/DAFJrf--nMY/view?embed";
+        }
+        else
+        {
+            url = "https://www.canva.com/design/DAFJrVr6Rg0/view?embed";
+        }
+    }
+    protected override async Task OnInitializedAsync()
+    {
+        await Gain();
+        var nowait = Bowling();
+        StateHasChanged();
+    }
+
+    async Task<string> Map()
+    {
+        string date = string.Empty;
+        var result = await js.InvokeAsync<string>("LocalStorageGet", "Map");
+        if(result == "")
+        {
+            hubConnection= new HubConnectionBuilder().WithUrl(NavigationManager.ToAbsoluteUri("/maphub")).Build();
+            hubConnection.On<string>("ReceiveImages", (message) =>
+            {
+                date = message;
+            });
+            await hubConnection.StartAsync();
+            await hubConnection.SendAsync("ClaimImages");
+            for (var i = 0; i < 20; i++)
+            {
+                if(date != string.Empty)
+                {
+                    break;
+                }
+                await Task.Delay(500);
+            }
+            await js.InvokeVoidAsync("LocalStorageGet", ("Map," + date));
+            result = date;
+        }
+        Console.WriteLine(result);
+        return result;
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (hubConnection is not null)
+        {
+            await hubConnection.DisposeAsync();
+        }
+    }
+
+    public async Task Bowling()
+    {
+        byte befor = floorIdentify;
+        while (true)
+        {
+            await Task.Delay(1000);
+            if(befor != floorIdentify)
+            {
+                await Gain();
+                StateHasChanged();
+                Console.WriteLine("chenged");
+            }
+            befor = floorIdentify;
+        }
+    }
+}

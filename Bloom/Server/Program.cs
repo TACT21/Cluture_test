@@ -1,4 +1,6 @@
 using Microsoft.AspNetCore.ResponseCompression;
+using Bloom.Server.Hubs;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -6,8 +8,17 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
+builder.Services.AddResponseCompression();
+Console.WriteLine("add!"); 
+builder.Services.AddSignalR();
+builder.Services.AddResponseCompression(opts =>
+{
+    opts.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(
+        new[] { "application/octet-stream" });
+});
 
 var app = builder.Build();
+app.UseResponseCompression();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -28,9 +39,10 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
-
 app.MapRazorPages();
 app.MapControllers();
+app.MapHub<Map>("/maphub");
+//app.MapHub<Company>("/companyhub");
 app.MapFallbackToFile("index.html");
 
 app.Run();

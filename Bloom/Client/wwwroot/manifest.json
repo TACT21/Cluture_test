@@ -1,21 +1,21 @@
 {
-  "name": "Bloom",
-  "short_name": "Bloom",
+  "name": "増尾祭2022",
+  "short_name": "MasuoFes 2022",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#ffffff",
-  "theme_color": "#03173d",
+  "theme_color": "#245",
   "prefer_related_applications": false,
   "icons": [
     {
-      "src": "icon-512.png",
+      "src": "./img/icon/Fes_icon512.png",
       "type": "image/png",
       "sizes": "512x512"
     },
     {
-      "src": "icon-192.png",
+      "src": "./img/icon/Fes_icon128.png",
       "type": "image/png",
-      "sizes": "192x192"
+      "sizes": "128x128"
     }
   ]
 }

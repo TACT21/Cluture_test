@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Text.Json;
+﻿using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Runtime.Serialization.Formatters.Binary;
 
 namespace Bloom.Shared
 {
@@ -66,6 +62,79 @@ namespace Bloom.Shared
             result.isfream = this.type == "ifream" ? true : false;
             result.Url = this.url;
             return result;
+        }
+    }
+
+    public class GroupCompactJson
+    {
+        [JsonPropertyName("Id")] public string id { get; set; }
+        [JsonPropertyName("Name")] public string name { get; set; }
+        [JsonPropertyName("Comment")] public string? comment { get; set; }
+        [JsonPropertyName("Location")] public string? location { get; set; }
+
+        public Group Convert2Nomal()
+        {
+            var result = new Group();
+            result.id = this.id;
+            result.name = this.name;
+            result.comment = this.comment;
+            result.location = this.location;
+            return result;
+        }
+
+        public Group Marge (Group baseG)
+        {
+            baseG.id = this.id;
+            baseG.name = this.name;
+            baseG.comment = this.comment;
+            baseG.location = this.location;
+            return baseG;
+        }
+
+        public GroupCompact Convert()
+        {
+            var result = new GroupCompact();
+            result.id = this.id;
+            result.name = this.name;
+            result.comment = this.comment;
+            result.location = this.location;
+            return result;
+        }
+    }
+    public class GroupCompact
+    {
+        public string id { get; set; }
+        public string name { get; set; }
+        public string? comment { get; set; }
+        public string? posterUrl { get; set; }
+        public string? location { get; set; }
+    }
+
+    public class GroupMap
+    {
+        public string id { get; set; }
+        public string name { get; set; }
+        public string? comment { get; set; }
+        public string? posterUrl { get; set; }
+        public bool isWide { get; set; }= false;
+        public string? location { get; set; }
+    }
+
+    public class Floor
+    {
+        public string floorTitle { get; set; } = string.Empty;
+        public List<GroupMap> groups = new List<GroupMap>();
+        public async Task ConvertFromJson(string json)
+        {
+            var deta = JsonSerializer.Deserialize<Json>(json);
+            this.floorTitle = deta.floorTitle;
+            this.groups = JsonSerializer.Deserialize<List<GroupMap>>(deta.groups);
+        }
+
+        private class Json
+        {
+            [JsonPropertyName("floorTitle")] public string floorTitle { get; set; }
+            [JsonPropertyName("groups")] public string groups { get; set; }
         }
     }
 }

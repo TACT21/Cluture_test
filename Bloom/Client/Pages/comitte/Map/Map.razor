@@ -1,29 +1,94 @@
 ﻿@using Bloom.Client
+@using Bloom.Shared
+@using Microsoft.AspNetCore.SignalR.Client
+@using Microsoft.AspNetCore.Components
+@using System.Text
+@using System.IO
+@using System.Xml.Serialization
+
+@page "/Map"
+
+@inject NavigationManager nV
+
+@implements IAsyncDisposable
 <h2>Map</h2>
 
 <div class="tabs">
-    <InputRadioGroup class="building" Name="product" ValueChanged="@((MapKind id) => Chenged(id))">
-        <InputRadio Name="product" Value="@MapKind.Gernal" id="r01" /><label class="btn" for="r01">全体図</label>
-        <InputRadio Name="product" Value="@MapKind.Central" id="r02" /><label class="btn" for="r02">中央棟</label>
-        <InputRadio Name="product" Value="@MapKind.High" id="r03" /><label class="btn" for="r03">高校棟</label>
-        <InputRadio Name="product" Value="@MapKind.Junior" id="r04" /><label class="btn" for="r04">中学棟</label>
-        <InputRadio Name="product" Value="@MapKind.Hall" id="r05" /><label class="btn" for="r05">ホール棟</label>
-    </InputRadioGroup>
-    <div class="map">
-        <Atlas floorIdentify="@floor"/>
+    <div class="building">
+         <input id="Radio1" name="RadioB" type="radio" checked="true" value="0" @onchange="RadioSelection" /><label class="btn" for="Radio1">全体図</label>
+          <input id="Radio2" name="RadioB" type="radio" value="1" @onchange="RadioSelection" /><label class="btn" for="Radio2">中央棟</label>
+          <input id="Radio3" name="RadioB" type="radio" value="2" @onchange="RadioSelection" /><label class="btn" for="Radio3">高校棟</label>
+          <input id="Radio4" name="RadioB" type="radio" value="3" @onchange="RadioSelection" /><label class="btn"  for="Radio4">中学棟</label>
+          <input id="Radio5" name="RadioB" type="radio" value="4" @onchange="RadioSelection" /><label class="btn" for="Radio5">ホール棟</label>
     </div>
-    @if(mapId != MapKind.Gernal){
+    <div class="map">
+        <Bloom.Client.Shared.Atlas floorIdentify="@floor"/>
+    </div>
+    @*@if(mapId != MapKind.Gernal){
         <div class="floor">
-            <InputRadioGroup class="building" Name="product" ValueChanged="@((byte id ) => Froor(id))">
-                @for (byte i = 0; i < maxdic[mapId]; i++)
-                {
-                        <InputRadio Name="product" Value="@i" id="r01" />
-
-                    <label class="btn-floor" for="r01">@(i.ToString() + "F")</label>
-                }
-
-            </InputRadioGroup>
+        @for (int i = 0; i < maxdic[mapId]; i++)
+        {
+            <input name="RadioF" type="radio" checked="true" value="@(i+1)" @onchange="FloorSelection" /><label class="btn-floor" for="Radio1">@((i+1).ToString() + "F")</label><br />
+        }
         </div>
+    }*@
+</div>
+
+<div class="inside">
+    @if (floors != null)
+    {
+        @foreach (var flooritems in floors)
+        {
+            <h1>@flooritems.floorTitle</h1>
+            <p>@flooritems.groups.Count</p>
+            @foreach (var company in flooritems.groups)
+            {
+                <p>Group</p>
+                @if (company.isWide)
+                {
+                    <div class="example-1 card">
+				        <div class="wide">
+					        <img src="@company.posterUrl" class="thumbnail"/>
+					        <div class="date_01">
+						        <span class="day">@company.location</span>
+						        <span class="month"></span>
+					        </div>
+					        <div class="data_01">
+						        <div class="content">
+							        <p class="card_maintitle card_href_05">@company.name</p>
+							        <p class="text">@company.comment</p>
+							        <div style = "width: 100%; text-align: center; margin: 2rem 0;">
+								        <a onclick="@Jump(company.id)"  class="gobtn">Gothis page</a>
+							        </div>
+						        </div>
+					        </div>
+				        </div>
+                    </div>
+                }
+                else
+                {
+                    <a onclick="@Jump(company.id)" class="example-1 card">
+                        <div class="wrapper" style="background: url(@company.posterUrl) 20% 1%/cover no-repeat;">
+                            <div class="date">
+                            <span class="day">@company.location</span>
+                            <span class="month"></span>
+                            </div>
+                            <div class="data">
+                                <div class="content">
+                                    <p class="card_maintitle card_href_05">@company.name</p>
+                                    <p class="text">@company.comment</p>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                }
+            }
+        }
+
+    }
+    else
+    {
+        <h1>お探しの階に出店しているブースはございません。</h1>
     }
 </div>
 
@@ -43,9 +108,12 @@
         {MapKind.Junior , 4},
         {MapKind.Hall , 4},
     };
-    private MapKind mapId;
+    private Atlas atlas;
+    private MapKind mapId = MapKind.Gernal;
     private byte floor = 0;
     private int selected;
+    private HubConnection? hubConnection = null;
+    private List<Floor>? floors =null;
     private void Chenged(MapKind kind){
         if(kind == MapKind.Gernal){
             floor = 0;
@@ -54,8 +122,65 @@
         }
     }
 
-    private void Froor (byte id){
-        floor = Convert.ToByte((int)mapId * 10 + id);
+    private void FloorSelection (ChangeEventArgs args){
+        floor = Convert.ToByte((int)mapId * 10 + Int32.Parse((string)args.Value));
         StateHasChanged();
+    }
+
+    public async void RadioSelection(ChangeEventArgs args)
+    {
+        //floors.Clear();
+        var answer = (MapKind)Enum.ToObject(typeof(MapKind), Int32.Parse((string)args.Value));
+        if(answer == MapKind.Gernal){
+            mapId = MapKind.Gernal;
+            floor = 0;
+            StateHasChanged();
+        }else{
+            mapId = answer;
+            floor = Convert.ToByte((int)mapId * 10 + 1);
+        }
+        Console.WriteLine("conect with server maphub");
+        hubConnection= new HubConnectionBuilder().WithUrl(nV.ToAbsoluteUri("/maphub")).Build();
+        hubConnection.On<string>("ReceiveGroups", (message) =>
+        {
+            Console.WriteLine("Add floor");
+            if(floors == null)
+            {
+                floors = new List<Floor>();
+            }
+            var a = Encoding.UTF8.GetBytes(message);
+            using (var stream = new MemoryStream(a, false))
+            {
+                XmlSerializer xs = new XmlSerializer(typeof(Floor));
+                var f = (Floor)xs.Deserialize(stream);
+                floors.Add(f);
+                Console.WriteLine("Add floor");
+                StateHasChanged();
+            }
+        });
+        await hubConnection.StartAsync();
+        for (int i = 0; i < maxdic[(MapKind)(int)mapId]; i++)
+        {
+            await hubConnection.SendAsync("ClaimGroups",(byte)((int)mapId * 10 + 1 + i));
+        }
+        Console.WriteLine(floor.ToString());
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        //nV.NavigateTo($"/Map/junior", false);
+    }
+
+    public async Task Jump(string id)
+    {
+        nV.NavigateTo($"/Company/"+id, false);
+    }
+
+        public async ValueTask DisposeAsync()
+    {
+        if (hubConnection is not null)
+        {
+            await hubConnection.DisposeAsync();
+        }
     }
 }
