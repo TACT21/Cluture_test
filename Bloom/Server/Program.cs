@@ -42,7 +42,7 @@ app.UseRouting();
 app.MapRazorPages();
 app.MapControllers();
 app.MapHub<Map>("/maphub");
-//app.MapHub<Company>("/companyhub");
+app.MapHub<Group>("/companyhub");
 app.MapFallbackToFile("index.html");
 
 app.Run();

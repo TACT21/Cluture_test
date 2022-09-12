@@ -11,114 +11,111 @@
 @inject NavigationManager nV
 
 @implements IAsyncDisposable
-
-@if(state == 1){
-    <main>
-        <div class="loading">
-            <Loading />
-        </div>
-    </main>
-}else if(state == 2){
-        <main>
-        <header class="">
+<main class="@loading">
+    <div class="loading">
+        <Loading />
+    </div>
+</main>
+<main class="@style">
+    <header style="@("background:url("+detail.contentUrl[posternumber]+") rgba(0 0 0 0.5) no-repeat center coverd")">
+        <div>
             <div>
+                <p class="orgtitle">@detail.name</p>
+                <p class="orgsubtitle">@detail.enname</p>
+            </div>
+        </div>
+        <div class="poster">
+            <button>＜</button>
+            <div>
+                <img src="@detail.contentUrl[posternumber]" class="posterimg"/>
+                <button class="btn vote">いいね!</button>
+            </div>
+            <button>＞</button>
+        </div>
+    </header>
+    @if(isCM || isMovie){
+        <section class="contener">
+            <div class="videocontener sectitles">
                 <div>
-                    <p class="orgtitle">@detail.name</p>
-                    <p class="orgsubtitle">@detail.enname</p>
+                    <h3 class="section_title">
+                        <img src="./img/icon/video.svg" class="icon" />
+                        Video
+                    </h3>
+                    <p class="section_subtitle">動画とCM</p>
+                </div>
+                <div>
+                    @if (isCM && isMovie)
+                    {
+                        <button class="btn" onclick="@Change(ChangeTo.Cm)">CM</button>
+                        <button class="btn" onclick="@Change(ChangeTo.Movie)">Video</button>
+                    }
+                    @if (isCM)
+                    {
+                        <button class="btn vote" onclick="Change(ChangeTo.Movie)"><img src="./img/icon/good.svg" alt="投票!" class="icon" /><span class="halfblank"></span>CMに投票する</button>
+                    }
                 </div>
             </div>
-            <div class="poster">
-                <button>＜</button>
-                <div>
-                    <img src="./img/index/poster.jpg" class="posterimg"/>
-                    <button class="btn vote">いいね!</button>
-                </div>
-                <button>＞</button>
+            <div class="content">
+                <video controls class="video">
+                    @if (media == ChangeTo.Cm)
+                    {
+                        @foreach (var item in detail.cmUrl)
+                        {
+                            <source src="@item.Url" />
+                        }
+                    }
+                    else
+                    {
+                        @foreach (var item in detail.videoUrl)
+                        {
+                            <source src="@item.Url" />
+                        }
+                    }
+                </video>
             </div>
-        </header>
-        @if(isCM || isMovie){
-            <section class="contener">
-                <div class="videocontener sectitles">
-                    <div>
-                        <h3 class="section_title">
-                            <img src="./img/icon/video.svg" class="icon" />
-                            Video
-                        </h3>
-                        <p class="section_subtitle">動画とCM</p>
-                    </div>
-                    <div>
-                        @if (isCM && isMovie)
-                        {
-                            <button class="btn" onclick="@Change(ChangeTo.Cm)">CM</button>
-                            <button class="btn" onclick="@Change(ChangeTo.Movie)">Video</button>
-                        }
-                        @if (isCM)
-                        {
-                            <button class="btn vote" onclick="Change(ChangeTo.Movie)"><img src="./img/icon/good.svg" alt="投票!" class="icon" /><span class="halfblank"></span>CMに投票する</button>
-                        }
-                    </div>
-                </div>
-                <div class="content">
-                    <video controls class="video">
-                        @if (media == ChangeTo.Cm)
-                        {
-                            @foreach (var item in detail.cmUrl)
-                            {
-                                <source src="@item.Url" />
-                            }
-                        }
-                        else
-                        {
-                            @foreach (var item in detail.videoUrl)
-                            {
-                                <source src="@item.Url" />
-                            }
-                        }
-                    </video>
-                </div>
-            </section>
-        }
-        <section>
-            <article class="contener">
-                <div class="videocontener sectitles">
-                    <div>
-                        <h3 class="section_title">
-                            <img src="./img/icon/map.svg" class="icon"/>
-                            Address
-                        </h3>
-                        <p class="section_subtitle">場所</p>
-                    </div>
-                    <p class="contein">@((MarkupString)detail.location.Split(",")[1])</p>
-                </div>
-                <div class="atlas content">
-                    <Atlas floorIdentify="Convert.ToByte(detail.location.Split(',')[2])"></Atlas>
-                </div>
-            </article>  
         </section>
+    }
+    <section>
+        <article class="contener">
+            <div class="videocontener sectitles">
+                <div>
+                    <h3 class="section_title">
+                        <img src="./img/icon/map.svg" class="icon"/>
+                        Address
+                    </h3>
+                    <p class="section_subtitle">場所</p>
+                </div>
+                <p class="contein">@((MarkupString)detail.location.Split(",")[0])</p>
+            </div>
+            <div class="atlas content">
+                <Atlas floorIdentify="Convert.ToByte(detail.location.Split(',')[1])"></Atlas>
+            </div>
+        </article>  
+    </section>
         
-        <section>
-            <div class="detail">
-                <h3 class="section_title">
-                    <img src="./img/icon/map.svg" class="icon"/>
-                    Detail
-                </h3>
-                <p class="section_subtitle">そのほか</p>
+    <section>
+        <div class="detail">
+            <h3 class="section_title">
+                <img src="./img/icon/map.svg" class="icon"/>
+                Detail
+            </h3>
+            <p class="section_subtitle">そのほか</p>
+        </div>
+        <article class="grid-contener">
+            <div class="text">
+                <div class="commentbox">
+                    <span class="box-title">コメント</span>
+                    <p>@detail.comment</p>
+                </div>
             </div>
-            <article class="grid-contener">
-                <div class="text">
-                    <div class="commentbox">
-                        <span class="box-title">コメント</span>
-                        <p>@detail.comment</p>
-                    </div>
-                </div>
-                <div class="btns">
-                    <p><button class="btn vote" onclick="Vote()">この団体に投票する</button></p>
-                    <p><button class="btn" onclick="Vote()">オンラインコンテンツへ</button></p>
-                </div>
-            </article>
-        </section>
-    </main>
-}else if(state == 3){
+            <div class="btns">
+                <p><button class="btn vote" onclick="Vote()">この団体に投票する</button></p>
+                <p><button class="btn" onclick="Vote()">オンラインコンテンツへ</button></p>
+            </div>
+        </article>
+    </section>
+</main>
+if(state == 3){
         <main>
         <div class="loading">
             <Bloom.Client.Pages.error._404 />
@@ -135,13 +132,16 @@
     [Parameter]
     public string paramstr { get; set; }
 
+    private int posternumber = 0;
     public string pstr;
     private bool isFun { set; get; }
     private bool isCM { set; get; }
-    public Group detail { set; get; }
+    public Group? detail { set; get; } = null;
     private bool isMovie { set; get; }
     private int floorCode { set; get; }
-    private byte state { set; get; }
+    public byte? state { set; get; } = 1;
+    public string style = "hide";
+    public string loading = string.Empty;
     private bool isvote;
     private ChangeTo media;
     private HubConnection? hubConnection;
@@ -153,33 +153,41 @@
 
     protected override async Task OnInitializedAsync()
     {
-        state = 0;
+        state = 1;
         if (paramstr == null)
         {
             nV.NavigateTo($"/Map", false);  
         }
+        Console.WriteLine("Conencted to grouphub with"+paramstr);
         StateHasChanged();
         hubConnection = new HubConnectionBuilder()
-        .WithUrl(nV.ToAbsoluteUri("/grouphub"))
+        .WithUrl(nV.ToAbsoluteUri("/companyhub"))
         .Build();
 
-        hubConnection.On<string>("ReceiveGroup", (message) =>
+        hubConnection.On<string>("ReceiveGroup", async (message) =>
         {
+            loading = "hide";
+            Console.WriteLine("Receive");
             var a = Encoding.UTF8.GetBytes(message);
             using (var stream = new MemoryStream(a, false))
             {
-                XmlSerializer xs = new XmlSerializer(typeof(Floor));
+                state = 1;
+                XmlSerializer xs = new XmlSerializer(typeof(Group));
                 var f = (Group)xs.Deserialize(stream);
                 if(f == null){
                     state = 3;
+                    detail = null;
                 }
                 else
                 {
                     state = 2;
+                    detail = f;
+                    Console.WriteLine(detail.ToString());
+                    Console.WriteLine(state.ToString());
+                    style = string.Empty;
+                    await Close();
                 }
-                detail = f;
             }
-            StateHasChanged();
         });
         await hubConnection.StartAsync();
         await hubConnection.SendAsync("ClaimGroup", paramstr);
