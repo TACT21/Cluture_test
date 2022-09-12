@@ -16,7 +16,9 @@
         <Loading />
     </div>
 </main>
-<main class="@style">
+
+@if(detail != null){
+  <main class="@style">
     <header style="@("background:url("+detail.contentUrl[posternumber]+") rgba(0 0 0 0.5) no-repeat center coverd")">
         <div>
             <div>
@@ -33,7 +35,7 @@
             <button>＞</button>
         </div>
     </header>
-    @if(isCM || isMovie){
+    @if(detail.cmUrl != null || detail.cmUrl != null){
         <section class="contener">
             <div class="videocontener sectitles">
                 <div>
@@ -44,7 +46,7 @@
                     <p class="section_subtitle">動画とCM</p>
                 </div>
                 <div>
-                    @if (isCM && isMovie)
+                    @if (detail.cmUrl != null && detail.cmUrl != null)
                     {
                         <button class="btn" onclick="@Change(ChangeTo.Cm)">CM</button>
                         <button class="btn" onclick="@Change(ChangeTo.Movie)">Video</button>
@@ -114,7 +116,8 @@
             </div>
         </article>
     </section>
-</main>
+</main>  
+}
 if(state == 3){
         <main>
         <div class="loading">
@@ -218,4 +221,4 @@ if(state == 3){
             await hubConnection.DisposeAsync();
         }
     }
-}
+}z
