@@ -39,50 +39,52 @@
     {
         @foreach (var flooritems in floors)
         {
-            <h1>@flooritems.floorTitle</h1>
-            <p>@flooritems.groups.Count</p>
-            @foreach (var company in flooritems.groups)
-            {
-                <p>Group</p>
-                @if (company.isWide)
-                {
-                    <div class="example-1 card">
-				        <div class="wide">
-					        <img src="@company.posterUrl" class="thumbnail"/>
-					        <div class="date_01">
-						        <span class="day">@company.location</span>
-						        <span class="month"></span>
-					        </div>
-					        <div class="data_01">
-						        <div class="content">
-							        <p class="card_maintitle card_href_05">@company.name</p>
-							        <p class="text">@company.comment</p>
-							        <div style = "width: 100%; text-align: center; margin: 2rem 0;">
-								        <a onclick="@Jump(company.id)"  class="gobtn">Gothis page</a>
-							        </div>
-						        </div>
-					        </div>
-				        </div>
-                    </div>
-                }
-                else
-                {
-                    <a onclick="@Jump(company.id)" class="example-1 card">
-                        <div class="wrapper" style="background: url(@company.posterUrl) 20% 1%/cover no-repeat;">
-                            <div class="date">
-                            <span class="day">@company.location</span>
-                            <span class="month"></span>
+            <section class="floors">
+                <h1>@flooritems.floorTitle</h1>
+                <div  class="mapTile">
+                    @foreach (var company in flooritems.groups)
+                    {
+                        @if (company.isWide)
+                        {
+                            <div class="example-1 card">
+				                <div class="wide">
+					                <img src="@company.posterUrl" class="thumbnail"/>
+					                <div class="date_01">
+						                <span class="day">@company.location</span>
+						                <span class="month"></span>
+					                </div>
+					                <div class="data_01">
+						                <div class="content">
+							                <p class="card_maintitle card_href_05">@company.name</p>
+							                <p class="text">@company.comment</p>
+							                <div style = "width: 100%; text-align: center; margin: 2rem 0;">
+                                                <a href="@("/Company/" + company.id)" class="gobtn">Gothis page</a>
+							                </div>
+						                </div>
+					                </div>
+				                </div>
                             </div>
-                            <div class="data">
-                                <div class="content">
-                                    <p class="card_maintitle card_href_05">@company.name</p>
-                                    <p class="text">@company.comment</p>
+                        }
+                        else
+                        {
+                            <a href="@("/Company/" + company.id)" class="example-1 card">
+                                <div class="wrapper" style="background: url(@company.posterUrl) 20% 1%/cover no-repeat;">
+                                    <div class="date">
+                                    <span class="day">@company.location</span>
+                                    <span class="month"></span>
+                                    </div>
+                                    <div class="data">
+                                        <div class="content">
+                                            <p class="card_maintitle card_href_05">@company.name</p>
+                                            <p class="text">@company.comment</p>
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
-                        </div>
-                    </a>
-                }
-            }
+                            </a>
+                        }
+                    }
+                </div>
+            </section>
         }
 
     }
@@ -113,7 +115,7 @@
     private byte floor = 0;
     private int selected;
     private HubConnection? hubConnection = null;
-    private List<Floor>? floors =null;
+    private List<Floor>? floors = null;
     private void Chenged(MapKind kind){
         if(kind == MapKind.Gernal){
             floor = 0;
@@ -171,9 +173,9 @@
         //nV.NavigateTo($"/Map/junior", false);
     }
 
-    public async Task Jump(string id)
+    public string Jump(string id)
     {
-        nV.NavigateTo($"/Company/"+id, false);
+        return nV.ToAbsoluteUri($"/Company/" + id).AbsoluteUri;
     }
 
         public async ValueTask DisposeAsync()

@@ -68,6 +68,7 @@ input{
     padding: 0 1.7rem;
     width: 20vw;
     min-width: 250px;
+    border:none !important;
 }
 
     .card .menu-content {
@@ -309,4 +310,13 @@ input{
 
 .wide {
     box-shadow: 0 19px 38px rgba(0, 0, 0, 0.3), 0 15px 12px rgba(0, 0, 0, 0.2);
+}
+
+.mapTile{
+    display:flex;
+    justify-content:space-around;
+}
+
+.floors{
+    margin: 5rem 0;
 }
