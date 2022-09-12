@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./style.css"/>
+    <title>Document</title>
+</head>
+<body>
+    <header style="background: url(./img/index/poster.jpg) rgba(0 0 0 .2) ;">
+        <div>
+            <div>
+                <p class="orgtitle">@detail.name</p>
+                <p class="orgsubtitle">@detail.enname</p>
+            </div>
+        </div>
+        <div class="poster">
+            <button>＜</button>
+            <div>
+                <img src="./img/index/poster.jpg" class="posterimg"/>
+                <button>いいね!</button>
+            </div>
+            <button>＞</button>
+        </div>
+    </header>
+    <section class="contener">
+        <div class="videocontener">
+            <div>
+                <h3 class="section_title">
+                    <img src="./img/icon/video.svg" class="icon"/>
+                    Video
+                </h3>
+                <p class="section_subtitle">動画とCM</p>
+            </div>
+            <div>
+                <button class="btn" onclick="Change(ChangeTo.Cm)">CM</button>
+                <button class="btn" onclick="Change(ChangeTo.Movie)">Video</button>
+                <button class="btn vote" onclick="Change(ChangeTo.Movie)"><img src="./img/icon/good.svg"  alt="投票!" class="icon"/><span class="halfblank"></span>CMに投票する</button>
+            </div>
+        </div>
+        <div>
+            <!--<video controls class="video">
+                <source src="@item.Url"/>
+            </video>-->
+            <img src="./img/404.svg"  class="video"/>
+        </div>
+    </section>
+    <section>
+        <article class="contener">
+            <div class="videocontener">
+                <div>
+                    <h3 class="section_title">
+                        <img src="./img/icon/map.svg" class="icon"/>
+                        Address
+                    </h3>
+                    <p class="section_subtitle">場所</p>
+                </div>
+                <p class="contein"><!--@((MarkupString)detail.location.Split(",")[1])--></p>
+            </div>
+            <div class="atlas">
+                <img src="./img/index/info.png">
+                <Bloom.Client.Pages.comitte.Map.Atlas floorIdentify="Convert.ToByte(detail.location.Split(',')[2])"></Bloom.Client.Pages.comitte.Map.Atlas>
+            </div>
+        </article>  
+    </section>
+    
+    <section>
+        <div class="detail">
+            <h3 class="section_title">
+                <img src="./img/icon/map.svg" class="icon"/>
+                Detail
+            </h3>
+            <p class="section_subtitle">そのほか</p>
+        </div>
+        <article class="grid-contener">
+            <div class="text">
+                <div class="commentbox">
+                    <span class="box-title">コメント</span>
+                    <p>@detail.comment</p>
+                </div>
+            </div>
+            <div class="btns">
+                <p><button class="btn vote" onclick="Vote()">この団体に投票する</button></p>
+                <p><button class="btn" onclick="Vote()">オンラインコンテンツへ</button></p>
+            </div>
+        </article>
+    </section>
+</body>
+</html>

@@ -1,7 +1,8 @@
-﻿.contener {
-    display: grid;
-    grid-template-columns: 7vw 30vw 13vw 1fr;
-    margin: 2rem 0;
+.contener {
+    display: flex;
+    align-items: center;
+    justify-content:space-around;
+    margin: 2rem 0 ;
 }
 
 .btn {
@@ -15,10 +16,10 @@
     border: #245 solid 1px;
 }
 
-    .btn:hover {
-        color: #245;
-        background-color: #fff;
-    }
+.btn:hover {
+    color: #245;
+    background-color: #fff;
+}
 
 .vote {
     background-image: linear-gradient(45deg, #FFC107 0%, #ff8b5f 100%);
@@ -26,13 +27,12 @@
     border: none;
 }
 
-    .vote:hover {
-        background-image: linear-gradient(45deg, #FFC107 0%, #f76a35 100%);
-        color: #ffffbb;
-    }
-
-@media screen and (min-width: 1000px) {
-    header {
+.vote:hover {
+    background-image: linear-gradient(45deg, #FFC107 0%, #f76a35 100%);
+    color: #ffffbb;
+}
+@media screen and (min-width: 1000px){
+    header{
         height: 100vh;
         margin: 0;
         padding: 0;
@@ -41,79 +41,79 @@
         justify-content: space-around;
         align-items: center;
     }
-
-    .orgtitle {
+    
+    .orgtitle{
         font-size: 3rem;
         margin-bottom: 0;
         border-bottom: #245 solid 2px;
     }
-
-    .orgsubtitle {
+    
+    .orgsubtitle{
         font-size: 1.5rem;
         margin-top: 0;
     }
-
-    button {
+    
+    button{
         border: none;
         background-color: rgba(0,0,0,0);
     }
-
-    .poster {
+    
+    .poster{
         display: flex;
         justify-content: center;
     }
-
-    .posterimg {
+    
+    .posterimg{
         height: 75vh;
     }
-
-    .poster div {
+    
+    .poster div{
         display: flex;
         flex-direction: column;
         align-items: center;
     }
 }
 
-.icon {
+.icon{
     height: 1em;
 }
 
-.section_title {
+.section_title{
     font-size: 1.5rem;
     width: 30vw;
     margin-bottom: 0;
     border-bottom: #245 solid 1px;
 }
 
-.section_subtitle {
+.section_subtitle{
     margin-top: 0;
 }
 
-.videocontener {
+.videocontener{
     display: flex;
     flex-direction: column;
-    justify-content: space-around;
+    justify-content: space-around;    
 }
 
-.video {
+.video{
     max-height: 500px;
     height: 25ch;
 }
 
-.halfblank {
+.halfblank{
     display: inline-block;
     width: .5em;
 }
 
-.atlas * {
+.atlas *{
     width: 40vw;
 }
 
-.contein {
+.contein{
     width: 30vw;
 }
 
-.detail {
+.detail{
     margin-left: 7vw;
 }
 
@@ -126,11 +126,11 @@
     width: 3;
 }
 
-.text {
+.text{
     grid-column: 2 / 3;
 }
 
-.btns {
+.btns{
     width: 100%;
     grid-column: 4;
     display: flex;
@@ -139,16 +139,17 @@
     align-content: center;
 }
 
-    .btns .btn {
-        width: 30vw;
-    }
+.btns .btn{
+    width: 30vw;
+}
 
-    .btns p {
-        width: 100%;
-        display: flex;
-        flex-direction: row;
-        justify-content: space-around;
-    }
+.btns p{
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    
+}
 
 .commentbox .box-title {
     position: absolute;
@@ -162,37 +163,12 @@
     color: #95ccff;
     font-weight: bold;
 }
-
 .commentbox p {
-    margin: 0;
+    margin: 0; 
     padding: 0;
 }
 
-.grid-contener {
+.grid-contener{
     display: grid;
     grid-template-columns: 7vw 30vw 13vw 1fr;
-}
-
-.sectitles {
-    grid-column: 2/3;
-}
-
-.content {
-    grid-column: 4/5;
-    display: flex;
-    justify-content: space-around;
-}
-
-main {
-    margin: 0;
-    padding: 0;
-    overflow-x: hidden;
-}
-
-.vote{
-    position:absolute;
-    top:0;
-    left:0;
-    margin:0;
-    padding:0;
 }
