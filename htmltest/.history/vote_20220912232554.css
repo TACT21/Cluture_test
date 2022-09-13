@@ -45,15 +45,3 @@
     margin: 0;
     padding: 0;
 }
-
-.choosen{
-    text-align: center;
-}
-
-.choosen img{
-    height: 10vh;
-}
-.halfblank{
-    display: inline-block;
-    width: .5em;
-}

@@ -101,29 +101,30 @@
             </article>  
         </section>
         
-        <section>
-            <div class="detail">
-                <h3 class="section_title">
-                    <img src="./img/icon/map.svg" class="icon"/>
-                    Detail
-                </h3>
-                <p class="section_subtitle">そのほか</p>
+    <section>
+        <div class="detail">
+            <h3 class="section_title">
+                <img src="./img/icon/map.svg" class="icon"/>
+                Detail
+            </h3>
+            <p class="section_subtitle">そのほか</p>
+        </div>
+        <article class="grid-contener">
+            <div class="text">
+                <div class="commentbox">
+                    <span class="box-title">コメント</span>
+                    <p>@detail.comment</p>
+                </div>
             </div>
-            <article class="grid-contener">
-                <div class="text">
-                    <div class="commentbox">
-                        <span class="box-title">コメント</span>
-                        <p>@detail.comment</p>
-                    </div>
-                </div>
-                <div class="btns">
-                    <p><button class="btn vote" onclick="Vote()">この団体に投票する</button></p>
-                    <p><button class="btn" onclick="Vote()">オンラインコンテンツへ</button></p>
-                </div>
-            </article>
-        </section>
-    </main>
-}else if(state == 3){
+            <div class="btns">
+                <p><button class="btn vote" onclick="Vote()">この団体に投票する</button></p>
+                <p><button class="btn" onclick="Vote()">オンラインコンテンツへ</button></p>
+            </div>
+        </article>
+    </section>
+</main>  
+}
+if(state == 3){
         <main>
         <div class="loading">
             <Bloom.Client.Pages.error._404 />
@@ -140,13 +141,16 @@
     [Parameter]
     public string paramstr { get; set; }
 
+    private int posternumber = 0;
     public string pstr;
     private bool isFun { set; get; }
     private bool isCM { set; get; }
     public Group? detail { set; get; }
     private bool isMovie { set; get; }
     private int floorCode { set; get; }
-    private byte state { set; get; }
+    public byte? state { set; get; } = 1;
+    public string style = "hide";
+    public string loading = string.Empty;
     private bool isvote;
     private ChangeTo media;
     private HubConnection? hubConnection;
@@ -158,7 +162,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        state = 0;
+        state = 1;
         if (paramstr == null)
         {
             nV.NavigateTo($"/Map", false);  
@@ -177,6 +181,7 @@
                 {
                     Console.WriteLine("Result is null");
                     state = 3;
+                    detail = null;
                 }
                 else
                 {
@@ -184,10 +189,14 @@
                     detail = f;
                     Console.WriteLine("Result is something");
                     state = 2;
+                    detail = f;
+                    Console.WriteLine(detail.ToString());
+                    Console.WriteLine(state.ToString());
+                    style = string.Empty;
+                    await Close();
                 }
                 Console.WriteLine("Resultchenge");
             }
-            StateHasChanged();
         });
         await hubConnection.StartAsync();
         Console.WriteLine("Claim");
@@ -219,4 +228,4 @@
             await hubConnection.DisposeAsync();
         }
     }
-}
+}z

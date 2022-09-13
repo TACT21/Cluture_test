@@ -50,7 +50,7 @@ namespace Bloom.Server.Hubs
                     }
                     a.Close();
                 }
-                await Clients.Caller.SendAsync("ReceiveImages", result);
+                await Clients.Caller.SendAsync("ReceiveGroup", result);
             }
             else
             {
@@ -77,5 +77,4 @@ namespace Bloom.Server.Hubs
 
   
     }
-
 }

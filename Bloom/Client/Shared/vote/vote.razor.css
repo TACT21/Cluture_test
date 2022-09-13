@@ -1,4 +1,4 @@
-.btn {
+﻿.btn {
     display: inline-block;
     padding: 7px 20px;
     border-radius: 25px;
@@ -9,17 +9,17 @@
     border: #245 solid 1px;
 }
 
-.btn:hover {
-    color: #245;
-    background-color: #fff;
-}
+    .btn:hover {
+        color: #245;
+        background-color: #fff;
+    }
 
-.chose{
+.chose {
     position: absolute;
     top: 50%;
     left: 50%;
-    -webkit-transform : translate(-50%,-50%);
-    transform : translate(-50%,-50%);
+    -webkit-transform: translate(-50%,-50%);
+    transform: translate(-50%,-50%);
     width: 100px;
     background: #fff;
     width: 50vw;
@@ -27,15 +27,16 @@
     border-radius: 2rem;
 }
 
-.title{
+.title {
     text-align: center;
 }
 
-.contener{
+.contener {
     display: flex;
     justify-content: space-around;
 }
-.vote{
+
+.vote {
     position: relative;
     background-color: rgba(0, 0, 0, 0.7);
     height: 100vh;
@@ -46,14 +47,15 @@
     padding: 0;
 }
 
-.choosen{
+.choosen {
     text-align: center;
 }
 
-.choosen img{
-    height: 10vh;
-}
-.halfblank{
+    .choosen img {
+        height: 10vh;
+    }
+
+.halfblank {
     display: inline-block;
     width: .5em;
 }

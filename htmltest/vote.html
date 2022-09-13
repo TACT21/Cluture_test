@@ -17,7 +17,7 @@
     <main class = "votecontener">
         <!--<section class="contein loading">
             <loading></loading>
-        </section>       
+        </section>
         @*保護者用*@
         <section class="contein">
             <h1>どの賞に投票なされますか?</h1>
@@ -33,7 +33,11 @@
                 <div>
                     <div style="background-image: url('./img/index/poster.jpg')" class="img"></div>
                     <button class="btn vote" onclick="Vote()">これにする</button>
-                </div>
+            </div>
+            <div class="contener">
+                <a class="btn" href="">ポスター賞</a>
+                <a class="btn" href="">CM大賞</a>
+                <a class="btn" href="">増尾大賞</a>
             </div>
         </section>
         <section class="contein">
@@ -42,7 +46,12 @@
                 <div>
                     <div style="background-image: url('./img/index/poster.jpg')" class="img"></div>
                     <button class="btn vote" onclick="Vote()">推薦します!</button>
-                </div>
+            </div>
+        </section>
+        <section class="chose" id="cm">
+            <div class="title">
+                <h1>この団体をCM大賞として投票しますか</h1>
+                <button class="btn">はい</button><span class="halfblank"></span><button class="btn">いいえ</button>
             </div>
         </section>-->
         @*生徒用*@
@@ -56,5 +65,6 @@
             <p>※投票は一人一票で、最新の物が採用されます。<br>また、公平性を保つため、個人を特定できない形でIPアドレスのみ頂戴しております。</p>
         </section>
     </main>
+
 </body>
 </html>
