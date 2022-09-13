@@ -9,7 +9,6 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
 builder.Services.AddResponseCompression();
-Console.WriteLine("add!"); 
 builder.Services.AddSignalR();
 builder.Services.AddResponseCompression(opts =>
 {
@@ -42,7 +41,8 @@ app.UseRouting();
 app.MapRazorPages();
 app.MapControllers();
 app.MapHub<Map>("/maphub");
-//app.MapHub<Company>("/companyhub");
+Console.WriteLine("add!");
+app.MapHub<Company>("/grouphub");
 app.MapFallbackToFile("index.html");
 
 app.Run();

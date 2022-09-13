@@ -88,11 +88,16 @@
                         </h3>
                         <p class="section_subtitle">場所</p>
                     </div>
-                    <p class="contein">@((MarkupString)detail.location.Split(",")[1])</p>
-                </div>
-                <div class="atlas content">
-                    <Atlas floorIdentify="Convert.ToByte(detail.location.Split(',')[2])"></Atlas>
-                </div>
+                    @if (detail.location != null && detail.location.Split(",").Length >= 1){
+                            <p class="contein">@((MarkupString)detail.location.Split(",")[0])</p>
+                    }
+                 </div>
+                @if (detail.location != null && detail.location.Split(",").Length >= 1)
+                {
+                    <div class="atlas content">
+                        <Atlas floorIdentify="Convert.ToByte(detail.location.Split(',')[1])"></Atlas>
+                    </div>
+                }
             </article>  
         </section>
         
@@ -138,7 +143,7 @@
     public string pstr;
     private bool isFun { set; get; }
     private bool isCM { set; get; }
-    public Group detail { set; get; }
+    public Group? detail { set; get; }
     private bool isMovie { set; get; }
     private int floorCode { set; get; }
     private byte state { set; get; }
@@ -158,30 +163,34 @@
         {
             nV.NavigateTo($"/Map", false);  
         }
-        StateHasChanged();
-        hubConnection = new HubConnectionBuilder()
-        .WithUrl(nV.ToAbsoluteUri("/grouphub"))
-        .Build();
-
+        StateHasChanged(); 
+        hubConnection = new HubConnectionBuilder().WithUrl(nV.ToAbsoluteUri("/grouphub")).Build();
         hubConnection.On<string>("ReceiveGroup", (message) =>
         {
+            Console.WriteLine("Receive");
             var a = Encoding.UTF8.GetBytes(message);
             using (var stream = new MemoryStream(a, false))
             {
-                XmlSerializer xs = new XmlSerializer(typeof(Floor));
-                var f = (Group)xs.Deserialize(stream);
-                if(f == null){
+                XmlSerializer xs = new XmlSerializer(typeof(Group));
+                Group? f = (Group?)xs.Deserialize(stream);
+                if (f == null)
+                {
+                    Console.WriteLine("Result is null");
                     state = 3;
                 }
                 else
                 {
+                    Console.WriteLine("Result is something");
+                    detail = f;
+                    Console.WriteLine("Result is something");
                     state = 2;
                 }
-                detail = f;
+                Console.WriteLine("Resultchenge");
             }
             StateHasChanged();
         });
         await hubConnection.StartAsync();
+        Console.WriteLine("Claim");
         await hubConnection.SendAsync("ClaimGroup", paramstr);
     }
 
