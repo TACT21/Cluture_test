@@ -30,8 +30,8 @@
             <div class="poster">
                 <button>＜</button>
                 <div>
-                    <img src="./img/index/poster.jpg" class="posterimg"/>
-                    <button class="btn vote">いいね!</button>
+                    <img src="@detail.posterUrl[posternumber].Url" class="posterimg"/>
+                    <button class="btn vote" @onclick="Vote">いいね!</button>
                 </div>
                 <button>＞</button>
             </div>
@@ -59,6 +59,17 @@
                     </div>
                 </div>
                 <div class="content">
+                    <div  class="video">
+                        @if (media == ChangeTo.Cm)
+                        {
+                            @((MarkupString)detail.cmUrl[0].Url);
+                        }
+                        else
+                        {
+                            @((MarkupString)detail.videoUrl[0].Url);
+                        }
+                    </div>
+                    @*
                     <video controls class="video">
                         @if (media == ChangeTo.Cm)
                         {
@@ -75,6 +86,7 @@
                             }
                         }
                     </video>
+                    *@
                 </div>
             </section>
         }
@@ -117,14 +129,13 @@
                 </div>
             </div>
             <div class="btns">
-                <p><button class="btn vote" onclick="Vote()">この団体に投票する</button></p>
-                <p><button class="btn" onclick="Vote()">オンラインコンテンツへ</button></p>
+                <p><button class="btn vote" @onclick="Vote">この団体に投票する</button></p>
+                <p><a class="btn" href="@detail.contentUrl">オンラインコンテンツへ</a></p>
             </div>
         </article>
     </section>
 </main>  
-}
-if(state == 3){
+}else if(state == 3){
         <main>
         <div class="loading">
             <Bloom.Client.Pages.error._404 />
@@ -133,7 +144,7 @@ if(state == 3){
 }
 @if(isvote){
     <div class="vote">
-        <Bloom.Client.Shared.vote.Vote/>
+        <Bloom.Client.Shared.vote.Vote close="Close" id="paramstr"/>
     </div>
 }
 
@@ -142,7 +153,6 @@ if(state == 3){
     public string paramstr { get; set; }
 
     private int posternumber = 0;
-    public string pstr;
     private bool isFun { set; get; }
     private bool isCM { set; get; }
     public Group? detail { set; get; }
@@ -190,12 +200,10 @@ if(state == 3){
                     Console.WriteLine("Result is something");
                     state = 2;
                     detail = f;
-                    Console.WriteLine(detail.ToString());
-                    Console.WriteLine(state.ToString());
                     style = string.Empty;
-                    await Close();
                 }
                 Console.WriteLine("Resultchenge");
+                StateHasChanged();
             }
         });
         await hubConnection.StartAsync();
@@ -215,7 +223,7 @@ if(state == 3){
         StateHasChanged();
     }
 
-    private async Task Close()
+    private void Close()
     {
         isvote = false;
         StateHasChanged();

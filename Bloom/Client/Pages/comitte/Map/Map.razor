@@ -131,7 +131,10 @@
 
     public async void RadioSelection(ChangeEventArgs args)
     {
-        //floors.Clear();
+        if(floors != null)
+        {
+            floors.Clear();
+        }
         var answer = (MapKind)Enum.ToObject(typeof(MapKind), Int32.Parse((string)args.Value));
         if(answer == MapKind.Gernal){
             mapId = MapKind.Gernal;

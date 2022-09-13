@@ -22,7 +22,6 @@ namespace Bloom.Server.Hubs
                 await SendGroup();
 #endif
         }
-
         private async Task SendGroup()
         {
             string result = string.Empty;
@@ -74,7 +73,5 @@ namespace Bloom.Server.Hubs
                 await Clients.Caller.SendAsync("ReceiveGroup", Encoding.UTF8.GetString(ms.ToArray()));
             }
         }
-
-  
     }
 }

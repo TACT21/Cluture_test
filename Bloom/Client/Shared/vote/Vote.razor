@@ -1,57 +1,180 @@
-﻿<main class="vote">
-        <section>
+﻿@using Bloom.Client
+@using Bloom.Shared
+@using Microsoft.AspNetCore.SignalR.Client
+@using Microsoft.AspNetCore.Components
+@using System.Text
+@using System.IO
+@using System.Xml.Serialization
+@using System.Net
+
+@inject NavigationManager nV
+@inject IJSRuntime jS
+
+@implements IAsyncDisposable
+
+<main class = "votecontener">
+    @if(state == State.Loading)
+    {
+        <section class="contein loading">
             <Loading/>
         </section>
-        <section class="chose" id="adalt">
-            <div class="title">
-                <h1>どの賞に投票しますか</h1>
-                <p>※二度目以降の投票の場合、投票は上書きされます。</p>
+    }else if(state == State.Adult)
+    {
+        @*保護者用*@
+        <section class="contein">
+            <h1>どの賞に投票なされますか?</h1>
+            <div class="btns">
+                <button class="btn" onclick="@Voteing(Mode.CM)">CM大賞</button>
+                <button class="btn" onclick="@Voteing(Mode.Poser)">ポスター大賞</button>
             </div>
-            <div class="contener">
-                <button class="btn">ポスター賞</button>
-                <button class="btn">CM大賞</button>
-            </div>
+            <p>※投票は一人一票で、最新の物が採用されます。<br>また、公平性を保つため、個人を特定できない形でIPアドレスのみ頂戴しております。</p>
         </section>
-        <section class="chose" id="adalt">
-            <div class="title">
-                <h1>どの賞に投票しますか</h1>
-                <p>※二度目以降の投票の場合、投票は上書きされます。</p>
+    }else if(state == State.Student)
+    {
+        @*生徒用*@
+        <section class="contein">
+            <h1>どの賞に投票なされますか?</h1>
+            <div class="btns">
+                <a class="btn" href="" target="_blank">CM大賞</a>
+                <a class="btn" href="" target="_blank">ポスター大賞</a>
+                <button class="btn" onclick="@Musuo()">増尾大賞</button>
             </div>
-            <div class="contener">
-                <a class="btn" href="">ポスター賞</a>
-                <a class="btn" href="">CM大賞</a>
-                <a class="btn" href="">増尾大賞</a>
-            </div>
+            <p>※投票は一人一票で、最新の物が採用されます。<br>また、公平性を保つため、個人を特定できない形でIPアドレスのみ頂戴しております。</p>
         </section>
-        <section class="chose" id="poster">
-            <div class="title">
-                <h1>どの画像に投票しますか</h1>
-            </div>
-            <div class="contener">
-                <div class="choosen">
-                    <img src="./img/index/poster.jpg"><br>
-                    <button class="btn">これにする</button>
-                </div>
-                <div class="choosen">
-                    <img src="./img/index/poster.jpg"><br>
-                    <button class="btn">これにする</button>
-                </div>
-            </div>
-        </section>
+    }else if(state == State.Befor)
+    {
+        @*前*@
         <section class="chose" id="cm">
             <div class="title">
-                <h1>この団体をCM大賞として投票しますか</h1>
+                <h1>投票開始までお待ちください。</h1>
                 <button class="btn">はい</button><span class="halfblank"></span><button class="btn">いいえ</button>
             </div>
         </section>
-        <section class="chose" id="complete">
-            <div class="title">
-                <h1>完了しました!</h1>
-                <p>元のページに戻るまでお待ちください。</p>
-                <a href="" class="btn">トップへ</a>
-            </div>
+    }
+    else if(state == State.error)
+    {
+         <section class="contein">
+            <h1>Error</h1>
+            <p>@errormess</p>
+            <button class="btn" @onclick="Close">戻る</button>
         </section>
-    </main>
-@code {
+    }else if(state == State.Accept)
+    {
+        <section class="contein">
+            <h1>受付ました!</h1>
+            <p>自動で戻ります。しばらくお待ちください。</p>
+        </section>
+    }
+</main>
 
+@code {
+    [Parameter]
+    public Action? close{ set; get; }
+
+    [Parameter]
+    public string? id{ set; get; }
+
+    private HubConnection? hubConnection = null;
+    private string errormess = string.Empty;
+    private enum State
+    {
+        Loading = 0,
+        Befor,
+        Student,
+        Adult,
+        Poster,
+        CM,
+        error,
+        Accept,
+    }
+    private State state = State.Loading;
+    public enum Mode
+    {
+        CM,
+        Poser
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Console.WriteLine("conect with server VoteHub");
+        hubConnection= new HubConnectionBuilder().WithUrl(nV.ToAbsoluteUri("/votehub")).Build();
+        hubConnection.On("BeforResist", ()=>
+        {
+            state = State.Befor;
+            StateHasChanged();
+        });
+        hubConnection.On<string>("ErrorInVote", (messege)=>
+        {
+            state = State.error;
+            errormess = messege;
+            StateHasChanged();
+        });
+        hubConnection.On<string>("AcceptVote", async (messege)=>
+        {
+            state = State.Accept;
+            StateHasChanged();
+            await Task.Delay(1000);
+            await DisposeAsync();
+            await Close();
+        });
+        await hubConnection.StartAsync();
+        try
+        {
+            HttpClient client = new HttpClient();
+            var url = "https://script.google.com/a/macros/sit-kashiwa.com/s/AKfycbzevGdW9UVerFOP7KCeAIm1Gtu61dW568a3yBkLrDNZlz2_BVIE9Bu3Tnl1-stJNCcY5Q/exec";
+            var response = client.GetAsync(url);
+            var content = await response.Result.Content.ReadAsStringAsync();
+            state = (content == "masuofes" ? State.Student : State.Adult);
+            Console.WriteLine(content);
+        }
+        catch
+        {
+            state = State.Adult;
+        }
+        StateHasChanged();
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (hubConnection is not null)
+        {
+            await hubConnection.DisposeAsync();
+        }
+    }
+
+    public async Task Close()
+    {
+        if(close != null)
+        {
+            close();
+        }
+    }
+
+    public async Task Musuo()
+    {
+        //do some thing
+    }
+
+    public async Task Voteing(Mode mode)
+    {
+        if(hubConnection.State == HubConnectionState.Connected)
+        {
+            if(mode == Mode.CM)
+            {
+                await hubConnection.SendAsync("ThrowVote",(id+",cm"));
+                await jS.InvokeVoidAsync("VoteCm",id);
+            }
+            else
+            {
+                await hubConnection.SendAsync("ThrowVote",(id+",poster"));
+                await jS.InvokeVoidAsync("VoteCm",id);
+            }
+        }
+        else
+        {
+            state = State.error;
+            errormess = "サーバーと通信できませんでした。もう一度ゆっくりお試しください。";
+            StateHasChanged();
+        }
+    }
 }
