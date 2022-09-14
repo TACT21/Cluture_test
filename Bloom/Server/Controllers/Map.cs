@@ -167,7 +167,7 @@ namespace Bloom.Server.Hubs
             await SendGreadsDev();
 #endif
 #if !DEBUG
-                    await SendGreads(floor);
+                    await SendGreads();
 #endif
         }
 
@@ -223,10 +223,24 @@ namespace Bloom.Server.Hubs
                 {
                     if (File.Exists(filePath))
                     {
-                        var reader = new GroupReader(); 
-                        var a = await reader.Read(filePath);
-                        floor.groups.Add(a);
+                        List<string> vs = new List<string>();
+                        using (StreamReader sr = new StreamReader(filePath))
+                        {
+                            vs.Add(sr.ReadLine());
+                        }
+                        foreach (var groupFile in vs)
+                        {
+                            var reader = new GroupReader();
+                            var serial = await reader.Read(groupFile);
+                            var group = new GroupMap();
+                            group.name = serial.name;
+                            group.comment = serial.comment;
+                            group.id = serial.id;
+                            group.location = serial.id;
+                            floor.groups.Add(group);
+                        }
                     }
+                    result.Add(floor);
                 }
                 catch
                 {
