@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.ResponseCompression;
 using Bloom.Server.Hubs;
+using Microsoft.AspNetCore.HttpOverrides;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -18,6 +19,14 @@ builder.Services.AddResponseCompression(opts =>
 
 var app = builder.Build();
 app.UseResponseCompression();
+// to reverce proxy
+app.UseForwardedHeaders(new ForwardedHeadersOptions
+{
+    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+});
+
+app.UseAuthentication();
+// to reverce proxy End
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -29,6 +38,11 @@ else
     app.UseExceptionHandler("/Error");
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
+}
+
+if (!app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
 }
 
 app.UseHttpsRedirection();
@@ -44,6 +58,19 @@ app.MapHub<Map>("/maphub");
 Console.WriteLine("add!");
 app.MapHub<Company>("/grouphub");
 app.MapHub<Bloom.Server.Controllers.Vote>("/votehub");
+
 app.MapFallbackToFile("index.html");
 
 app.Run();
+
+var nowait = Unwait();
+
+async Task Unwait()
+{
+    Console.ReadLine();
+    Console.Write("Are you sure close?");
+    if(Console.ReadLine() == "y")
+    {
+        Environment.Exit(0);
+    }
+}

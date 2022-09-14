@@ -98,7 +98,7 @@
     {
         Console.WriteLine("conect with server VoteHub");
         hubConnection= new HubConnectionBuilder().WithUrl(nV.ToAbsoluteUri("/votehub")).Build();
-        hubConnection.On("BeforResist", ()=>
+        hubConnection.On("BeforResist", async()=>
         {
             Console.WriteLine("befor");
             state = State.Befor;
