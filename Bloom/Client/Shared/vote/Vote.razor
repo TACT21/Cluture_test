@@ -47,7 +47,7 @@
         <section class="chose" id="cm">
             <div class="title">
                 <h1>投票開始までお待ちください。</h1>
-                <button class="btn">はい</button><span class="halfblank"></span><button class="btn">いいえ</button>
+                <button class="btn" @onclick="Close">戻る</button>
             </div>
         </section>
     }
@@ -100,8 +100,12 @@
         hubConnection= new HubConnectionBuilder().WithUrl(nV.ToAbsoluteUri("/votehub")).Build();
         hubConnection.On("BeforResist", ()=>
         {
+            Console.WriteLine("befor");
             state = State.Befor;
             StateHasChanged();
+            await Task.Delay(1000);
+            await DisposeAsync();
+            await Close();
         });
         hubConnection.On<string>("ErrorInVote", (messege)=>
         {

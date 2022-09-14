@@ -15,11 +15,11 @@
 
 <div class="tabs">
     <div class="building">
-         <input id="Radio1" name="RadioB" type="radio" checked="true" value="0" @onchange="RadioSelection" /><label class="btn" for="Radio1">全体図</label>
-          <input id="Radio2" name="RadioB" type="radio" value="1" @onchange="RadioSelection" /><label class="btn" for="Radio2">中央棟</label>
-          <input id="Radio3" name="RadioB" type="radio" value="2" @onchange="RadioSelection" /><label class="btn" for="Radio3">高校棟</label>
-          <input id="Radio4" name="RadioB" type="radio" value="3" @onchange="RadioSelection" /><label class="btn"  for="Radio4">中学棟</label>
-          <input id="Radio5" name="RadioB" type="radio" value="4" @onchange="RadioSelection" /><label class="btn" for="Radio5">ホール棟</label>
+         <input id="Radio1" name="RadioB" style="display: none;" type="radio" checked="true" value="0" @onchange="RadioSelection" /><label class="btn" for="Radio1">全体図</label>
+          <input id="Radio2" name="RadioB" style="display: none;" type="radio" value="1" @onchange="RadioSelection" /><label class="btn" for="Radio2">中央棟</label>
+        <input id="Radio3" name="RadioB" style="display: none;" type="radio" value="2" @onchange="RadioSelection" /><label class="btn" for="Radio3">高校棟</label>
+        <input id="Radio4" name="RadioB" style="display: none;" type="radio" value="3" @onchange="RadioSelection" /><label class="btn" for="Radio4">中学棟</label>
+        <input id="Radio5" name="RadioB" style="display: none;" type="radio" value="4" @onchange="RadioSelection" /><label class="btn" for="Radio5">ホール棟</label>
     </div>
     <div class="map">
         <Bloom.Client.Shared.Atlas floorIdentify="@floor"/>

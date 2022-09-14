@@ -16,9 +16,10 @@
     color: #FFF;
 }*/
 
-input{
-    display:none;
+input[type=radio] {
+    display: none;
 }
+
 .btn-floor {
     position: relative;
     display: inline-block;

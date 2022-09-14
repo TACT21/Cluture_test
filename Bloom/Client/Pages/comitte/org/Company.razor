@@ -30,7 +30,7 @@
             <div class="poster">
                 <button>＜</button>
                 <div>
-                    <img src="@detail.posterUrl[posternumber].Url" class="posterimg"/>
+                    <img src="@poster.Url" class="posterimg" />
                     <button class="btn vote" @onclick="Vote">いいね!</button>
                 </div>
                 <button>＞</button>
@@ -151,8 +151,7 @@
 @code {
     [Parameter]
     public string paramstr { get; set; }
-
-    private int posternumber = 0;
+    private Media poster = new Media();
     private bool isFun { set; get; }
     private bool isCM { set; get; }
     public Group? detail { set; get; }
@@ -195,9 +194,10 @@
                 }
                 else
                 {
-                    Console.WriteLine("Result is something");
-                    detail = f;
-                    Console.WriteLine("Result is something");
+                    if (f.posterUrl.Count > 1)
+                    {
+                        poster = f.posterUrl[0];
+                    }
                     state = 2;
                     detail = f;
                     style = string.Empty;

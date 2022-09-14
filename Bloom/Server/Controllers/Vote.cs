@@ -25,6 +25,7 @@ namespace Bloom.Server.Controllers
         }
         private async Task RegistVote(string mess)
         {
+            Console.WriteLine(limit + ","+DateTime.Now);
             if(DateTime.Now < limit)
             {
                 await Clients.Caller.SendAsync("BeforResist");
@@ -79,8 +80,9 @@ namespace Bloom.Server.Controllers
 
         private async Task RegistVoteDev(string str)
         {
+            Console.WriteLine(limit + "," + DateTime.Now);
             Console.WriteLine("Vote to " + str + "from" + string.Empty);
-            await Clients.Caller.SendAsync("AcceptVote");
+            await Clients.Caller.SendAsync("BeforResist");
         }
     }
 }

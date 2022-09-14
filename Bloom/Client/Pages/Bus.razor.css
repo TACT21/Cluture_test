@@ -1,0 +1,20 @@
+﻿h1 {
+    padding: 0.4em 0.5em; /*文字の上下 左右の余白*/
+    color: #000; /*文字色*/
+    background: #f4f4f4; /*背景色*/
+    border-left: solid 5px #4169e1; /*左線*/
+    border-bottom: solid 3px #d7d7d7; /*下線*/
+}
+
+
+h2 {
+    color: #4169e1; /*文字色*/
+    /*線の種類（実線） 太さ 色*/
+    border-bottom: solid 3px #4169e1;
+}
+
+@media media-type and (max-width: 999px) {
+    .closes{
+        display:none;
+    }
+}

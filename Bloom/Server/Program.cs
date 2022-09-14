@@ -43,6 +43,7 @@ app.MapControllers();
 app.MapHub<Map>("/maphub");
 Console.WriteLine("add!");
 app.MapHub<Company>("/grouphub");
+app.MapHub<Bloom.Server.Controllers.Vote>("/votehub");
 app.MapFallbackToFile("index.html");
 
 app.Run();

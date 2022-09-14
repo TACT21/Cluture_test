@@ -153,3 +153,10 @@
         opacity: 1
     }
 }
+
+.loader {
+    background-color: #225;
+    margin:100%;
+    padding:100%;
+    width:100%;
+}

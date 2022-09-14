@@ -1,0 +1,51 @@
+﻿@page "/Content"
+
+@if(!iscompornent){
+    <header>
+
+    </header>
+}
+<div class="cardlist">
+    <a href="" class="l-wrapper card-radius">
+        <article class="card">
+            <div class="card__header">
+                <p class="card__title">しばかっしー公式サイト</p>
+                <div class="card__thumbnail">
+                    <figure>
+                        <img src="./img/index/shibakashi.png" alt="サムネイル" class="card__image">
+                    </figure>
+                </div>
+            </div>
+        </article>
+    </a>
+    <a href="" class="l-wrapper card-radius">
+        <article class="card">
+            <div class="card__header">
+                <p class="card__title">Tシャツコンテスト</p>
+                <div class="card__thumbnail">
+                    <figure>
+                        <img src="./img/index/shibakashi.png" alt="サムネイル" class="card__image">
+                    </figure>
+                </div>
+            </div>
+        </article>
+    </a>
+    <a href="" class="l-wrapper card-radius">
+        <article class="card">
+            <div class="card__header">
+                <p class="card__title">イベント部門スタンプラリー</p>
+                <div class="card__thumbnail">
+                    <figure>
+                        <img src="./img/index/shibakashi.png" alt="サムネイル" class="card__image">
+                    </figure>
+                </div>
+            </div>
+        </article>
+    </a>
+</div>
+
+
+@code {
+    [Parameter]
+    public bool iscompornent { set; get; } = false;
+}
