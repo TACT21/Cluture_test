@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.3.32519.111
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Fes", "Fes\Fes.csproj", "{2123AB69-3F18-4531-9606-8B1E074F8F93}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bloom.Server", "Bloom\Server\Bloom.Server.csproj", "{8CA76FCE-3994-4E4A-B7FD-1DA8A35AB1C9}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bloom.Client", "Bloom\Client\Bloom.Client.csproj", "{95844BA7-EE23-4011-9308-DE66E9EBB095}"
@@ -19,10 +17,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{2123AB69-3F18-4531-9606-8B1E074F8F93}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{2123AB69-3F18-4531-9606-8B1E074F8F93}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{2123AB69-3F18-4531-9606-8B1E074F8F93}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{2123AB69-3F18-4531-9606-8B1E074F8F93}.Release|Any CPU.Build.0 = Release|Any CPU
 		{8CA76FCE-3994-4E4A-B7FD-1DA8A35AB1C9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{8CA76FCE-3994-4E4A-B7FD-1DA8A35AB1C9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8CA76FCE-3994-4E4A-B7FD-1DA8A35AB1C9}.Release|Any CPU.ActiveCfg = Release|Any CPU
