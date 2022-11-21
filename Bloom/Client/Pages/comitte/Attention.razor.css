@@ -45,8 +45,8 @@
         background-color: #fff;
     }
 
-.btns {
-    display: flex;
+.btns p{
+    text-align:center;
 }
 
 .img {

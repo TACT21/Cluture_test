@@ -33,6 +33,7 @@
 
   <ItemGroup>
     <Folder Include="wwwroot\img\icon\" />
+    <Folder Include="wwwroot\img\attention\" />
   </ItemGroup>
 
   <ItemGroup>

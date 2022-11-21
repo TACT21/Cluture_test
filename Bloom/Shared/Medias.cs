@@ -4,6 +4,10 @@ using System.Runtime.Serialization.Formatters.Binary;
 
 namespace Bloom.Shared
 {
+    class defolt{
+        public JsonSerializerOptions options1 = new JsonSerializerOptions();
+    }
+
     public class Group
     {
         public string id { get; set; }
@@ -137,4 +141,42 @@ namespace Bloom.Shared
             [JsonPropertyName("groups")] public string groups { get; set; }
         }
     }
+
+    public class O
+    {
+        public string id { get; set; }
+        public string name { get; set; }
+        public string? comment { get; set; }
+        public string? posterUrl { get; set; }
+        public bool isWide { get; set; } = false;
+        public string? location { get; set; }
+    }
+
+    public class Events
+    {
+        public string title { get; set; } = string.Empty;
+        public string url { get; set; } = string.Empty;
+        public string sumbnaill { get; set; } = string.Empty;
+        public async Task ConvertFromJson(string json)
+        {
+            var deta = JsonSerializer.Deserialize<Json>(json);
+            this.title = deta.title;
+            this.url = deta.url;
+            this.sumbnaill= deta.sumbnaill;
+        }
+
+        public async Task<string> ConvertToJson(JsonSerializerOptions options = null)
+        {
+            return JsonSerializer.Serialize(this, typeof(Bloom.Shared.Events), options);
+        }
+
+        private class Json
+        {
+            [JsonPropertyName("title")] public string title { get; set; }
+            [JsonPropertyName("url")] public string url { get; set; }
+            [JsonPropertyName("sumbnaill")] public string sumbnaill { get; set; }
+        }
+    }
+
+
 }

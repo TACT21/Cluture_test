@@ -1,8 +1,21 @@
-﻿@page "/Content"
+﻿@using Microsoft.AspNetCore.SignalR.Client
+@using System.Text
+@using System.IO
+@using System.Xml.Serialization
+@using Bloom.Client
+
+@page "/Content"
+
+@inject NavigationManager nV
+
+@implements IAsyncDisposable
 
 @if(!iscompornent){
-    <header>
-
+    <header class="">
+        <div>
+            <p class="title">イベント</p>
+            <p class="subtile">Events</p>
+        </div>
     </header>
 }
 <div class="cardlist">
@@ -48,4 +61,49 @@
 @code {
     [Parameter]
     public bool iscompornent { set; get; } = false;
+    private HubConnection? hubConnection = null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        hubConnection = new HubConnectionBuilder().WithUrl(nV.ToAbsoluteUri("/grouphub")).Build();
+        hubConnection.On<string>("ReceiveGroup", (message) =>
+        {
+            Console.WriteLine("Receive");
+            var a = Encoding.UTF8.GetBytes(message);
+            using (var stream = new MemoryStream(a, false))
+            {
+                XmlSerializer xs = new XmlSerializer(typeof(Group));
+                Group? f = (Group?)xs.Deserialize(stream);
+                if (f == null)
+                {
+                    Console.WriteLine("Result is null");
+                    state = 3;
+                    detail = null;
+                }
+                else
+                {
+                    if (f.posterUrl.Count > 1)
+                    {
+                        poster = f.posterUrl[0];
+                    }
+                    state = 2;
+                    detail = f;
+                    style = string.Empty;
+                }
+                Console.WriteLine("Resultchenge");
+                StateHasChanged();
+            }
+        });
+        await hubConnection.StartAsync();
+        Console.WriteLine("Claim");
+        await hubConnection.SendAsync("ClaimGroup", paramstr);
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (hubConnection is not null)
+        {
+            await hubConnection.DisposeAsync();
+        }
+    }
 }
