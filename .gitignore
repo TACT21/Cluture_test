@@ -350,4 +350,4 @@ MigrationBackup/
 .ionide/
 School_system/Test/appsettings.json
 Client/wwwroot/appsettings.json
-/Test/Test.csproj
+/Test/*

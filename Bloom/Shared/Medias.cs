@@ -1,13 +1,20 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.IO;
+using static System.Net.Mime.MediaTypeNames;
+using System.Text;
+using System.Runtime.InteropServices;
 
 namespace Bloom.Shared
 {
-    class defolt{
-        public JsonSerializerOptions options1 = new JsonSerializerOptions();
+    internal static class Default
+    {
+        internal static JsonSerializerOptions options1 = new JsonSerializerOptions();
     }
-
+    /// <summary>
+    /// 出展団体の管理用クラス
+    /// </summary>
     public class Group
     {
         public string id { get; set; }
@@ -19,99 +26,122 @@ namespace Bloom.Shared
         public List<Media>? cmUrl { get; set; }
         public string? location { get; set; }
         public string? contentUrl { get; set; }
+        /// <summary>
+        /// Jsonの内容をこの変数に代入します。
+        /// </summary>
+        /// <param name="json">変換対象のJson</param>
+        /// <param name="options">変換オプション。Nullの場合、Bloom.Shared.Default.options1に準じます。</param>
+        public async Task ConvertFromJson(Stream json,JsonSerializerOptions options = null)
+        {
+            //シリアライズオプションの設定
+            if(options== null)
+            {
+                options = Default.options1;
+            }
+            var deta = await JsonSerializer.DeserializeAsync<Json>(json,options);
+            this.id = deta.id;
+            this.name = deta.name;
+            this.enname = deta.enName;
+            this.comment = deta.comment;
+            this.location = deta.location;
+            this.contentUrl = deta.contentUrl;
+            //リスト化されたオブジェクトの順応
+            foreach (var item in deta.videoUrl)
+            {
+                videoUrl.Add(item.Value);
+            }
+            foreach (var item in deta.cmUrl)
+            {
+                cmUrl.Add(item.Value);
+            }
+            foreach (var item in deta.posterUrl)
+            {
+                posterUrl.Add(item.Value);
+            }
+        }
+        /// <summary>
+        /// Jsonの内容をこの変数に代入します。
+        /// </summary>
+        /// <param name="json">変換対象のJson</param>
+        /// <param name="options">変換オプション。Nullの場合、Bloom.Shared.Default.options1に準じます。</param>
+        public async Task ConvertFromJson(string json, JsonSerializerOptions options = null)
+        {
+            var memory = new MemoryStream(Encoding.UTF8.GetBytes(json));
+            var task = ConvertFromJson(memory,options);
+            await task;
+        }
+        public async Task<string> ConvertToJson(JsonSerializerOptions options = null)
+        {
+            return JsonSerializer.Serialize(this, typeof(Bloom.Shared.Group), options);
+        }
+        public class Json
+        {
+            [JsonPropertyName("Id")] public string id { get; set; }
+            [JsonPropertyName("Name")] public string name { get; set; }
+            [JsonPropertyName("EnName")] public string enName { get; set; }
+            [JsonPropertyName("PosterURL")] public Dictionary<string,Media>? posterUrl { get; set; }
+            [JsonPropertyName("Comment")] public string? comment { get; set; }
+            [JsonPropertyName("VideoLink")] public Dictionary<string, Media>? videoUrl { get; set; }
+            [JsonPropertyName("CMLink")] public Dictionary<string, Media>? cmUrl { get; set; }
+            [JsonPropertyName("Location")] public string? location { get; set; }
+            [JsonPropertyName("ContentLink")] public string? contentUrl { get; set; }
+        }
     }
-
+    /// <summary>
+    /// ポスターやCM等電子データの保持クラス。
+    /// </summary>
     public class Media
-    {
-        public bool isfream { get; set; }
+    {        
+        public bool isfream { get; set; }//互換性維持のために残置。Typeを使用すること
+        public string type { get; set; }
         public string Url { set; get; }
-    }
-
-    public class GroupJson
-    {
-        [JsonPropertyName("Id")] public string id { get; set; }
-        [JsonPropertyName("Name")] public string name { get; set; }
-        [JsonPropertyName("EnName")] public string enName { get; set; }
-        [JsonPropertyName("PosterURL")] public string? posterUrl { get; set; }
-        [JsonPropertyName("Comment")] public string? comment { get; set; }
-        [JsonPropertyName("VideoLink")] public string? videoUrl { get; set; }
-        [JsonPropertyName("CMLink")] public string? cmUrl { get; set; }
-        [JsonPropertyName("Location")] public string? location { get; set; }
-        [JsonPropertyName("ContentLink")] public string? contentUrl { get; set; }
-
-        public Group Convert()
+        /// <summary>
+        /// Jsonの内容をこの変数に代入します。
+        /// </summary>
+        /// <param name="json">変換対象のJson</param>
+        /// <param name="options">変換オプション。Nullの場合、Bloom.Shared.Default.options1に準じます。</param>
+        public async Task ConvertFromJson(Stream json, JsonSerializerOptions options = null)
         {
-            var result = new Group();
-            result.id = this.id;
-            result.name = this.name;
-            result.enname = this.enName;
-            result.posterUrl = JsonSerializer.Deserialize<List<Media>>(this.posterUrl);
-            result.comment = this.comment;
-            result.cmUrl = JsonSerializer.Deserialize<List<Media>>(this.cmUrl);
-            result.videoUrl = JsonSerializer.Deserialize<List<Media>>(this.videoUrl);
-            result.location = this.location;
-            result.contentUrl = this.contentUrl;
-            return result;
+            //シリアライズオプションの設定
+            if (options == null)
+            {
+                options = Default.options1;
+            }
+            var deta = await JsonSerializer.DeserializeAsync<Json>(json, options);
+            this.isfream = deta.type == "ifream" ? true : false;
+            this.type = deta.type;
+            this.Url = deta.url;
         }
-    }
-
-    public class MediaJson
-    {
-        [JsonPropertyName("filetype")] public string type { get; set; }
-        [JsonPropertyName("Url")] public string url { get; set; }
-
-        public Media Convert()
+        /// <summary>
+        /// Jsonの内容をこの変数に代入します。
+        /// </summary>
+        /// <param name="json">変換対象のJson</param>
+        /// <param name="options">変換オプション。Nullの場合、Bloom.Shared.Default.options1に準じます。</param>
+        public async Task ConvertFromJson(string json, JsonSerializerOptions options = null)
         {
-            var result = new Media();
-            result.isfream = this.type == "ifream" ? true : false;
-            result.Url = this.url;
-            return result;
+            var memory = new MemoryStream(Encoding.UTF8.GetBytes(json));
+            var task = ConvertFromJson(memory, options);
+            await task;
         }
-    }
-
-    public class GroupCompactJson
-    {
-        [JsonPropertyName("Id")] public string id { get; set; }
-        [JsonPropertyName("Name")] public string name { get; set; }
-        [JsonPropertyName("Comment")] public string? comment { get; set; }
-        [JsonPropertyName("Location")] public string? location { get; set; }
-
-        public Group Convert2Nomal()
+        /// <summary>
+        /// この変数の内容をJsonに変換します。
+        /// </summary>
+        /// <param name="options">変換オプション。Nullの場合、Bloom.Shared.Default.options1に準じます。</param>
+        /// <returns>Json変換後の文字列</returns>
+        public async Task<string> ConvertToJson(JsonSerializerOptions options = null)
         {
-            var result = new Group();
-            result.id = this.id;
-            result.name = this.name;
-            result.comment = this.comment;
-            result.location = this.location;
-            return result;
+            if (options == null)
+            {
+                options = Bloom.Shared.Default.options1;
+            }
+            return JsonSerializer.Serialize(this, typeof(Bloom.Shared.Media), options);
         }
 
-        public Group Marge (Group baseG)
+        class Json
         {
-            baseG.id = this.id;
-            baseG.name = this.name;
-            baseG.comment = this.comment;
-            baseG.location = this.location;
-            return baseG;
+            [JsonPropertyName("type")] public string type { get; set; }
+            [JsonPropertyName("Url")] public string url { get; set; }
         }
-
-        public GroupCompact Convert()
-        {
-            var result = new GroupCompact();
-            result.id = this.id;
-            result.name = this.name;
-            result.comment = this.comment;
-            result.location = this.location;
-            return result;
-        }
-    }
-    public class GroupCompact
-    {
-        public string id { get; set; }
-        public string name { get; set; }
-        public string? comment { get; set; }
-        public string? posterUrl { get; set; }
-        public string? location { get; set; }
     }
 
     public class GroupMap
@@ -135,21 +165,20 @@ namespace Bloom.Shared
             this.groups = JsonSerializer.Deserialize<List<GroupMap>>(deta.groups);
         }
 
+        public async Task<string> ConvertToJson(JsonSerializerOptions options = null)
+        {
+            if (options == null)
+            {
+                options = Bloom.Shared.Default.options1;
+            }
+            return JsonSerializer.Serialize(this, typeof(Bloom.Shared.Floor), options);
+        }
+
         private class Json
         {
             [JsonPropertyName("floorTitle")] public string floorTitle { get; set; }
             [JsonPropertyName("groups")] public string groups { get; set; }
         }
-    }
-
-    public class O
-    {
-        public string id { get; set; }
-        public string name { get; set; }
-        public string? comment { get; set; }
-        public string? posterUrl { get; set; }
-        public bool isWide { get; set; } = false;
-        public string? location { get; set; }
     }
 
     public class Events
@@ -167,6 +196,10 @@ namespace Bloom.Shared
 
         public async Task<string> ConvertToJson(JsonSerializerOptions options = null)
         {
+            if(options == null)
+            {
+                options = Bloom.Shared.Default.options1;
+            }
             return JsonSerializer.Serialize(this, typeof(Bloom.Shared.Events), options);
         }
 
@@ -177,6 +210,5 @@ namespace Bloom.Shared
             [JsonPropertyName("sumbnaill")] public string sumbnaill { get; set; }
         }
     }
-
 
 }
