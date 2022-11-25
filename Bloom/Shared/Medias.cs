@@ -38,23 +38,23 @@ namespace Bloom.Shared
             {
                 options = Default.options1;
             }
-            var deta = await JsonSerializer.DeserializeAsync<Json>(json,options);
-            this.id = deta.id;
-            this.name = deta.name;
-            this.enname = deta.enName;
-            this.comment = deta.comment;
-            this.location = deta.location;
-            this.contentUrl = deta.contentUrl;
+            var data = await JsonSerializer.DeserializeAsync<Json>(json,options);
+            this.id = data.id;
+            this.name = data.name;
+            this.enname = data.enName;
+            this.comment = data.comment;
+            this.location = data.location;
+            this.contentUrl = data.contentUrl;
             //リスト化されたオブジェクトの順応
-            foreach (var item in deta.videoUrl)
+            foreach (var item in data.videoUrl)
             {
                 videoUrl.Add(item.Value);
             }
-            foreach (var item in deta.cmUrl)
+            foreach (var item in data.cmUrl)
             {
                 cmUrl.Add(item.Value);
             }
-            foreach (var item in deta.posterUrl)
+            foreach (var item in data.posterUrl)
             {
                 posterUrl.Add(item.Value);
             }
@@ -107,10 +107,10 @@ namespace Bloom.Shared
             {
                 options = Default.options1;
             }
-            var deta = await JsonSerializer.DeserializeAsync<Json>(json, options);
-            this.isfream = deta.type == "ifream" ? true : false;
-            this.type = deta.type;
-            this.Url = deta.url;
+            var data = await JsonSerializer.DeserializeAsync<Json>(json, options);
+            this.isfream = data.type == "ifream" ? true : false;
+            this.type = data.type;
+            this.Url = data.url;
         }
         /// <summary>
         /// Jsonの内容をこの変数に代入します。
@@ -143,55 +143,90 @@ namespace Bloom.Shared
             [JsonPropertyName("Url")] public string url { get; set; }
         }
     }
-
-    public class GroupMap
-    {
-        public string id { get; set; }
-        public string name { get; set; }
-        public string? comment { get; set; }
-        public string? posterUrl { get; set; }
-        public bool isWide { get; set; }= false;
-        public string? location { get; set; }
-    }
-
+    /// <summary>
+    /// マップ用クラス。各階の総合データの送信
+    /// </summary>
     public class Floor
     {
-        public string floorTitle { get; set; } = string.Empty;
-        public List<GroupMap> groups = new List<GroupMap>();
-        public async Task ConvertFromJson(string json)
+        public string id { get; set; } =string.Empty;
+        public string floorTitle { get; set; } = string.Empty;//フロアタイトル
+        public Media floorMap { get; set; }//マップのデータ
+        public List<Group> groups { get; set; } = new List<Group>();//団体一覧
+        /// <summary>
+        /// Jsonの内容をこの変数に代入します。
+        /// </summary>
+        /// <param name="json">変換対象のJson</param>
+        /// <param name="options">変換オプション。Nullの場合、Bloom.Shared.Default.options1に準じます。</param>
+        public async Task ConvertFromJson(Stream json, JsonSerializerOptions options = null)
         {
-            var deta = JsonSerializer.Deserialize<Json>(json);
-            this.floorTitle = deta.floorTitle;
-            this.groups = JsonSerializer.Deserialize<List<GroupMap>>(deta.groups);
-        }
-
-        public async Task<string> ConvertToJson(JsonSerializerOptions options = null)
-        {
+            //シリアライズオプションの設定
             if (options == null)
             {
-                options = Bloom.Shared.Default.options1;
+                options = Default.options1;
             }
-            return JsonSerializer.Serialize(this, typeof(Bloom.Shared.Floor), options);
+            var data = await JsonSerializer.DeserializeAsync<Json>(json, options);
+            this.floorTitle = data.floorTitle;
+            this.floorMap = data.map;
+            this.id  = data.id;
+            //リスト化されたオブジェクトの順応
+            foreach (var item in data.groups)
+            {
+                if(item.Key == item.Value.id)
+                {
+                    groups.Add(item.Value);
+                }
+            }
         }
-
+        /// <summary>
+        /// Jsonの内容をこの変数に代入します。
+        /// </summary>
+        /// <param name="json">変換対象のJson</param>
+        /// <param name="options">変換オプション。Nullの場合、Bloom.Shared.Default.options1に準じます。</param>
+        public async Task ConvertFromJson(string json, JsonSerializerOptions options = null)
+        {
+            var memory = new MemoryStream(Encoding.UTF8.GetBytes(json));
+            var task = ConvertFromJson(memory, options);
+            await task;
+        }
+        /// <summary>
+        /// このデータをJsonに変換します。
+        /// </summary>
+        /// <param name="options">変換オプション。Nullの場合、Bloom.Shared.Default.options1に準じます。</param>
+        /// <returns>変換後のJson</returns>
+        public async Task<string> ConvertToJson(JsonSerializerOptions options = null)
+        {
+            Json toJson = new Json();
+            toJson.floorTitle = this.floorTitle;
+            toJson.map = this.floorMap;
+            foreach (var item in this.groups)
+            {
+                toJson.groups.Add(item.id, item);
+            }
+            return JsonSerializer.Serialize(toJson, typeof(Bloom.Shared.Group), options);
+        }
         private class Json
         {
+            [JsonPropertyName("id")] public string id { get; set; }
             [JsonPropertyName("floorTitle")] public string floorTitle { get; set; }
-            [JsonPropertyName("groups")] public string groups { get; set; }
+            [JsonPropertyName("map")] public Media map { get; set; }
+            [JsonPropertyName("groups")] public Dictionary<string,Group> groups { get; set; }
         }
     }
-
+    /// <summary>
+    /// イベント管理クラス。Groupでもいいかもしれない。
+    /// </summary>
     public class Events
     {
+        public string id { get; set; } = string.Empty;
         public string title { get; set; } = string.Empty;
         public string url { get; set; } = string.Empty;
         public string sumbnaill { get; set; } = string.Empty;
         public async Task ConvertFromJson(string json)
         {
-            var deta = JsonSerializer.Deserialize<Json>(json);
-            this.title = deta.title;
-            this.url = deta.url;
-            this.sumbnaill= deta.sumbnaill;
+            var data = JsonSerializer.Deserialize<Json>(json);
+            this.title = data.title;
+            this.url = data.url;
+            this.sumbnaill= data.sumbnaill;
         }
 
         public async Task<string> ConvertToJson(JsonSerializerOptions options = null)
@@ -205,6 +240,7 @@ namespace Bloom.Shared
 
         private class Json
         {
+            [JsonPropertyName("id")] public string id { get; set; }
             [JsonPropertyName("title")] public string title { get; set; }
             [JsonPropertyName("url")] public string url { get; set; }
             [JsonPropertyName("sumbnaill")] public string sumbnaill { get; set; }
