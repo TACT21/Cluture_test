@@ -20,10 +20,10 @@ namespace Bloom.Shared
         public string id { get; set; }
         public string name { get; set; }
         public string enname { get; set; }
-        public List<Media>? posterUrl { get; set; }
+        public List<Media> posterUrl { get; set; } = new List<Media>();
         public string? comment { get; set; }
-        public List<Media>? videoUrl { get; set; }
-        public List<Media>? cmUrl { get; set; }
+        public List<Media> videoUrl { get; set; } = new List<Media>();
+        public List<Media> cmUrl { get; set; } = new List<Media>();
         public string? location { get; set; }
         public string? contentUrl { get; set; }
         /// <summary>
@@ -95,6 +95,7 @@ namespace Bloom.Shared
         public bool isfream { get; set; }//互換性維持のために残置。Typeを使用すること
         public string type { get; set; }
         public string Url { set; get; }
+        public bool isWide { set; get; } = true;
         /// <summary>
         /// Jsonの内容をこの変数に代入します。
         /// </summary>
@@ -111,6 +112,7 @@ namespace Bloom.Shared
             this.isfream = data.type == "ifream" ? true : false;
             this.type = data.type;
             this.Url = data.url;
+            this.isWide = data.type == "wide" ? true : false;
         }
         /// <summary>
         /// Jsonの内容をこの変数に代入します。
@@ -134,13 +136,18 @@ namespace Bloom.Shared
             {
                 options = Bloom.Shared.Default.options1;
             }
-            return JsonSerializer.Serialize(this, typeof(Bloom.Shared.Media), options);
+            var raw = new Json();
+            raw.url = this.Url;
+            raw.type = this.type;
+            raw.Iswide = this.isWide ? "wide" : "thin";
+            return JsonSerializer.Serialize(this, typeof(Bloom.Shared.Media.Json), options);
         }
 
         class Json
         {
-            [JsonPropertyName("type")] public string type { get; set; }
-            [JsonPropertyName("Url")] public string url { get; set; }
+            [JsonPropertyName("type")] public string type { get; set; } = String.Empty;
+            [JsonPropertyName("Url")] public string url { get; set; } = String.Empty;
+            [JsonPropertyName("Wide")] public string Iswide { get; set; } = String.Empty;
         }
     }
     /// <summary>
@@ -149,6 +156,8 @@ namespace Bloom.Shared
     public class Floor
     {
         public string id { get; set; } =string.Empty;
+        public Building building { get; set; }
+        public int fllor { get; set; }
         public string floorTitle { get; set; } = string.Empty;//フロアタイトル
         public Media floorMap { get; set; }//マップのデータ
         public List<Group> groups { get; set; } = new List<Group>();//団体一覧
@@ -207,10 +216,24 @@ namespace Bloom.Shared
         private class Json
         {
             [JsonPropertyName("id")] public string id { get; set; }
+            /// <summary>
+            /// 階の名前
+            /// </summary>
             [JsonPropertyName("floorTitle")] public string floorTitle { get; set; }
             [JsonPropertyName("map")] public Media map { get; set; }
             [JsonPropertyName("groups")] public Dictionary<string,Group> groups { get; set; }
         }
+    }
+    /// <summary>
+    /// 棟識別用列挙型
+    /// </summary>
+    public enum Building
+    {
+        Gernal = 0,
+        Central = 1,
+        High = 2,
+        Junior = 3,
+        Hall = 4,
     }
     /// <summary>
     /// イベント管理クラス。Groupでもいいかもしれない。
@@ -246,5 +269,4 @@ namespace Bloom.Shared
             [JsonPropertyName("sumbnaill")] public string sumbnaill { get; set; }
         }
     }
-
 }

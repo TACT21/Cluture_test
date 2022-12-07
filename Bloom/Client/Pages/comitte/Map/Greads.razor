@@ -12,19 +12,27 @@
 
 @implements IAsyncDisposable
 
+@*ここからHTML*@
 <h3>学年から探す</h3>
+<!--学年の数だけ操作-->
 @foreach (var flooritems in floors)
 {
+    <!--学年毎コンテナー-->
     <section class="floors">
         <h1>@flooritems.floorTitle</h1>
         <div  class="mapTile">
+            <!--クラスの数だけ操作-->
             @foreach (var company in flooritems.groups)
             {
-                @if (company.isWide)
+                <!--ポスターが一個以上ある団体に対してのカード発行-->
+                @if (company.posterUrl.Count >0 && company.posterUrl[0].isWide)
                 {
+                    <!--横長ポスタークラス-->
                     <div class="example-1 card">
 				        <div class="wide">
+                            <!--ポスター表示-->
 					        <img src="@company.posterUrl" class="thumbnail"/>
+                            <!--クラスに関する表示-->
 					        <div class="date_01">
 						        <span class="day">@company.location</span>
 						        <span class="month"></span>
@@ -43,8 +51,10 @@
                 }
                 else
                 {
+                    <!--縦長ポスタークラス　※ポスターは、背景として表示-->
                     <a href="@("/Company/" + company .id)" class="example-1 card">
                         <div class="wrapper" style="background: url(@company.posterUrl) 20% 1%/cover no-repeat;">
+                            <!--クラスに関する表示-->
                             <div class="date">
                             <span class="day">@company.location</span>
                             <span class="month"></span>
@@ -63,31 +73,36 @@
     </section>
 }
 @code {
-    List<Floor> floors = new List<Floor>();
-    private HubConnection? hubConnection = null;
+    List<Floor> floors = new List<Floor>();　//学校全体の情報を格納
+    private HubConnection? hubConnection = null; //サーバーコネクション取得
+
+    /// <summary>
+    /// ページ読み込み時に、学年一覧を要求
+    /// </summary>
     protected override async Task OnInitializedAsync()
     {
         hubConnection= new HubConnectionBuilder().WithUrl(nV.ToAbsoluteUri("/maphub")).Build();
         hubConnection.On<string>("ReceiveGreads", (message) =>
         {
-            var a = Encoding.UTF8.GetBytes(message);
-            using (var stream = new MemoryStream(a, false))
-            {
-                XmlSerializer xs = new XmlSerializer(typeof(List<Floor>));
-                floors = (List<Floor>)xs.Deserialize(stream);
-                StateHasChanged();
-            }
+        
         });
         await hubConnection.StartAsync();
         await hubConnection.SendAsync("ClaimGreads");
     }
 
+    /// <summary>
+    /// 動的ジャンプヘルパー
+    /// </summary>
+    /// <param name="id">クラスに割り当てられたID</param>
     public string Jump(string id)
     {
         return nV.ToAbsoluteUri($"/Company/" + id).AbsoluteUri;
     }
 
-        public async ValueTask DisposeAsync()
+    /// <summary>
+    /// ページ遷移時の後始末。サーバーとの通信を終了
+    /// </summary>
+    public async ValueTask DisposeAsync()
     {
         if (hubConnection is not null)
         {
