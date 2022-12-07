@@ -68,7 +68,7 @@ input[type=radio] {
     float: left;
     padding: 0 1.7rem;
     width: 20vw;
-    min-width: 250px;
+    min-width: 350px;
     border:none !important;
 }
 
