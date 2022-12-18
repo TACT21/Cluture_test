@@ -17,7 +17,7 @@
     <div class="mpheader">
         <!--建物を選択-->
         <div class="buildings">
-            <InputSelect Value="@mapid" ValueChanged="@((Building mapid) => BuildingChenged(mapid))">
+            <InputSelect Value="@mapId" ValueChanged="@((Building mapId) => BuildingChenged(mapId))">
             <!--Buildingの数だけだけオプションを生み出す。-->
             @foreach (var Building in Buildings) {
                 <option value="@Building.Key">@Building.Value[1]</option>
@@ -29,7 +29,7 @@
         <div class="froor">
             <InputSelect Value="@Floor" ValueChanged="@((int id) => FloorChenged(id))">
                 <!--選択された建物の回数分だけ1,2,3...というオプションを生み出す。-->
-                @for (int i = 0; i < Int32.Parse(Buildings[mapid][0]); i++){
+                @for (int i = 0; i < Int32.Parse(Buildings[mapId][0]); i++){
                     <option id="@i">@(i+1)</option>
                 }
             </InputSelect>        
@@ -115,61 +115,102 @@
     private readonly string offlineKey = "MapData";
     protected override async Task OnInitializedAsync()
     {
-        hubConnection = new HubConnectionBuilder()
-            .WithUrl(nV.ToAbsoluteUri("/MapHub"))
-            .Build();
-
-        hubConnection.On<string>("ReceiveFloor", async (message) =>
-        {
-            var raw = new Floor();
-            await raw.ConvertFromJson(message);
-            try
-            {
-                floors[raw.building][raw.fllor] = raw;
-            }catch (Exception e)
-            {
-                Console.WriteLine(e);
-            }
-        //画面適応
-            StateHasChanged();
-        });
-
-        var task = hubConnection.StartAsync();
+        var task = Establish();
         //ローカルストレージからのデータ再現を試行
         if (Shared.Contloller.LocalDataSaver.UseLocalSaver())
         {
-            var localdata = await Shared.Contloller.LocalDataSaver.GetLocalData<Dictionary<Building,Floor[]>>(offlineKey);
-            using (MemoryStream ms = new MemoryStream())
-            {
-                var data = await JsonSerializer.DeserializeAsync<Dictionary<Building, string[]>>(json, options);
-            }
+            floors = await Shared.Contloller.LocalDataSaver.GetLocalData<Dictionary<Building,Floor[]>>(offlineKey);  
         }
+        await task;
     }
-    private Floor current = new Floor(){floorTitle="ありません"};
+    private Floor current = new Floor(){floorTitle="階数を選択してください。"};
 
     private async Task Retriever(Building structure,int floor)
     {
-        //オフラインバッファに合ったら取得
-        if (Buildings != null && Buildings[structure] != null && Buildings[structure].Length > 0)
+        //オフラインバッファに合ったら検索
+        if (floors != null && floors[structure] != null && floors[structure].Length > 0)
         {
-
+            try
+            {
+                var a = floors[structure][floor];
+            }
+            catch
+            {
+                if (await Establish())
+                {
+                    await hubConnection.SendAsync("ClaimFloorID");
+                }
+            }
         }
         //画面適応
         StateHasChanged();
+    }
+
+    //接続確立関数(接続可能性確認を兼任)
+    private async Task<bool> Establish()
+    {
+        //ネットワークが生きてなかったら
+        if (!System.Net.NetworkInformation.NetworkInterface.GetIsNetworkAvailable())
+        {
+            return false;
+        }else if(hubConnection == null)
+        {
+            //サーバー接続が生きてなかったら
+            hubConnection = new HubConnectionBuilder()
+            .WithUrl(nV.ToAbsoluteUri("/MapHub"))
+            .Build();
+            hubConnection.On<string>("ReceiveFloor", async (message) =>
+            {
+                var raw = new Floor();
+                await raw.ConvertFromJson(message);
+                try
+                {
+                    floors[raw.building][raw.fllor] = raw;
+                }catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                }
+            //画面適応
+                StateHasChanged();
+            });
+            hubConnection.On<string>("ReceiveFloorID", async (message) =>
+            {
+                var raw = new Floor();
+                await raw.ConvertFromJson(message);
+                if(Int32.Parse(raw.id) > Int32.Parse(floors[raw.building][raw.fllor].id))
+                {
+                    await hubConnection.InvokeAsync("ClaimFloor",new string[] {message});
+                }
+            //画面適応
+                StateHasChanged();
+            });  
+            hubConnection.On<string>("ReceiveBuildings", async (message) =>
+            {
+                using (var ms = new MemoryStream())
+                {
+                    await ms.WriteAsync(System.Text.Encoding.UTF8.GetBytes(message));
+                    Buildings = await JsonSerializer.DeserializeAsync<Dictionary<Building, string[]>>(ms);
+                }
+            });
+            await hubConnection.StartAsync();
+        }
+        return true;
     }
 
     //建物変更時呼び出し関数
     private async Task BuildingChenged(Building value)
     {
-        mapid = value;
+        mapId = value;
         //画面適応
         StateHasChanged();
     }
+
     //階数変更時呼び出し関数
     private async Task FloorChenged(int value)
     {
-        await Retriever(mapid,value);
+        await Retriever(mapId,value);
     }
+
     //ページ遷移時の後始末
     public async ValueTask DisposeAsync()
     {
@@ -184,5 +225,5 @@
 
     //Input 等の消してほしくないオブジェクト
     protected int Floor { get; set; }
-    protected Building mapid { get; set; }
+    protected Building mapId { get; set; }
 }
