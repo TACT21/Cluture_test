@@ -2,62 +2,56 @@
 @using Bloom.Shared
 @using Microsoft.AspNetCore.SignalR.Client
 @using Microsoft.AspNetCore.Components
-@using System.Text
+@using System.Text.Json
 @using System.IO
-@using System.Xml.Serialization
+@using Bloom.Client.Shared
 
 @page "/Gread"
+@page "/Gread/{gread}"
 
 @inject NavigationManager nV
+@inject IJSRuntime js
 
 @implements IAsyncDisposable
-
-@*ここからHTML*@
-<h3>学年から探す</h3>
-<!--学年の数だけ操作-->
-@foreach (var flooritems in floors)
+@*以下HTML*@
+<h2>学年別に探す</h2>
+@foreach (var item in greads)
 {
-    <!--学年毎コンテナー-->
-    <section class="floors">
-        <h1>@flooritems.floorTitle</h1>
-        <div  class="mapTile">
-            <!--クラスの数だけ操作-->
-            @foreach (var company in flooritems.groups)
+    <div id="@item.floorTitle">
+        <div class="header">@item.floorTitle</div>
+        <div>
+            @foreach (var company in item.groups)
             {
-                <!--ポスターが一個以上ある団体に対してのカード発行-->
-                @if (company.posterUrl.Count >0 && company.posterUrl[0].isWide)
+                //横長ポスターの場合
+                @if (company.posterUrl[0].isWide)
                 {
-                    <!--横長ポスタークラス-->
                     <div class="example-1 card">
-				        <div class="wide">
-                            <!--ポスター表示-->
-					        <img src="@company.posterUrl" class="thumbnail"/>
-                            <!--クラスに関する表示-->
-					        <div class="date_01">
-						        <span class="day">@company.location</span>
-						        <span class="month"></span>
-					        </div>
-					        <div class="data_01">
-						        <div class="content">
-							        <p class="card_maintitle card_href_05">@company.name</p>
-							        <p class="text">@company.comment</p>
-							        <div style = "width: 100%; text-align: center; margin: 2rem 0;">
-                                        <a href="@("/Company/" + company.id)" class="gobtn">Gothis page</a>
-							        </div>
-						        </div>
-					        </div>
-				        </div>
+                        <div class="wide">
+                            <img src="@company.posterUrl[0].Url" class="thumbnail" />
+                            <div class="date_01">
+                                <span class="day">@company.location</span>
+                                <span class="month"></span>
+                            </div>
+                            <div class="data_01">
+                                <div class="content">
+                                    <p class="card_maintitle card_href_05">@company.name</p>
+                                    <p class="text">@company.comment</p>
+                                    <div style="width: 100%; text-align: center; margin: 2rem 0;">
+                                        <a href="@URLConverter(company.id)" class="gobtn">Go this page</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 }
+                //縦長ポスターの場合
                 else
                 {
-                    <!--縦長ポスタークラス　※ポスターは、背景として表示-->
-                    <a href="@("/Company/" + company .id)" class="example-1 card">
-                        <div class="wrapper" style="background: url(@company.posterUrl) 20% 1%/cover no-repeat;">
-                            <!--クラスに関する表示-->
+                    <a href="@URLConverter(company.id)" class="example-1 card">
+                        <div class="wrapper" style="background: url(@company.posterUrl[0].Url) 20% 1%/cover no-repeat;">
                             <div class="date">
-                            <span class="day">@company.location</span>
-                            <span class="month"></span>
+                                <span class="day">@company.location</span>
+                                <span class="month"></span>
                             </div>
                             <div class="data">
                                 <div class="content">
@@ -70,43 +64,51 @@
                 }
             }
         </div>
-    </section>
+    </div>
 }
+@*ここまでHTML*@
 @code {
-    List<Floor> floors = new List<Floor>();　//学校全体の情報を格納
-    private HubConnection? hubConnection = null; //サーバーコネクション取得
-
-    /// <summary>
-    /// ページ読み込み時に、学年一覧を要求
-    /// </summary>
+    [Parameter]
+    public string? gread { get; set; }
+    private Floor[] greads = new Floor[0];
+    private readonly string offlineKey = "MapData";
+    private HubConnection? hubConnection = null;
     protected override async Task OnInitializedAsync()
     {
-        hubConnection= new HubConnectionBuilder().WithUrl(nV.ToAbsoluteUri("/maphub")).Build();
-        hubConnection.On<string>("ReceiveGreads", (message) =>
+        hubConnection = new HubConnectionBuilder()
+            .WithUrl(nV.ToAbsoluteUri("/GreadsHub"))
+            .Build();
+        var task = hubConnection.StartAsync();
+        await hubConnection.InvokeAsync<Floor[]>("CleamGreads");
+        //ローカルストレージからのデータ再現を試行
+        if (Shared.Contloller.LocalDataSaver.UseLocalSaver())
         {
-        
-        });
-        await hubConnection.StartAsync();
-        await hubConnection.SendAsync("ClaimGreads");
+            var localdata = await Shared.Contloller.LocalDataSaver.GetLocalData<Dictionary<Building, Floor[]>>(offlineKey);
+            using (MemoryStream ms = new MemoryStream())
+            {
+                var data = await JsonSerializer.DeserializeAsync<Dictionary<Building, string[]>>(ms);
+            }
+        }
     }
 
-    /// <summary>
-    /// 動的ジャンプヘルパー
-    /// </summary>
-    /// <param name="id">クラスに割り当てられたID</param>
-    public string Jump(string id)
+    private string URLConverter(string id)
     {
-        return nV.ToAbsoluteUri($"/Company/" + id).AbsoluteUri;
+        return nV.ToAbsoluteUri("/Company/" + id).AbsoluteUri;
     }
 
-    /// <summary>
-    /// ページ遷移時の後始末。サーバーとの通信を終了
-    /// </summary>
+    //ページ遷移時の後始末
     public async ValueTask DisposeAsync()
     {
+        string body = JsonSerializer.Serialize<Floor[]>(greads);
+        var task = Shared.Contloller.LocalDataSaver.SetLocalData(offlineKey, body);
         if (hubConnection is not null)
         {
             await hubConnection.DisposeAsync();
         }
+        await task;
     }
+
+    //Input 等の消してほしくないオブジェクト
+    protected int Floor { get; set; }
+    protected Building mapid { get; set; }
 }
