@@ -5,13 +5,10 @@ using System.IO;
 using static System.Net.Mime.MediaTypeNames;
 using System.Text;
 using System.Runtime.InteropServices;
+using Bloom.Shared.Setting;
 
 namespace Bloom.Shared
 {
-    internal static class Default
-    {
-        internal static JsonSerializerOptions options1 = new JsonSerializerOptions();
-    }
     /// <summary>
     /// 出展団体の管理用クラス
     /// </summary>
@@ -30,13 +27,13 @@ namespace Bloom.Shared
         /// Jsonの内容をこの変数に代入します。
         /// </summary>
         /// <param name="json">変換対象のJson</param>
-        /// <param name="options">変換オプション。Nullの場合、Bloom.Shared.Default.options1に準じます。</param>
+        /// <param name="options">変換オプション。Nullの場合、Bloom.Shared.Setting.Media.options1に準じます。</param>
         public async Task ConvertFromJson(Stream json,JsonSerializerOptions options = null)
         {
             //シリアライズオプションの設定
             if(options== null)
             {
-                options = Default.options1;
+                options = Bloom.Shared.Setting.Media.options1;
             }
             var data = await JsonSerializer.DeserializeAsync<Json>(json,options);
             this.id = data.id;
@@ -63,7 +60,7 @@ namespace Bloom.Shared
         /// Jsonの内容をこの変数に代入します。
         /// </summary>
         /// <param name="json">変換対象のJson</param>
-        /// <param name="options">変換オプション。Nullの場合、Bloom.Shared.Default.options1に準じます。</param>
+        /// <param name="options">変換オプション。Nullの場合、Bloom.Shared.Setting.Media.options1に準じます。</param>
         public async Task ConvertFromJson(string json, JsonSerializerOptions options = null)
         {
             var memory = new MemoryStream(Encoding.UTF8.GetBytes(json));
@@ -100,13 +97,13 @@ namespace Bloom.Shared
         /// Jsonの内容をこの変数に代入します。
         /// </summary>
         /// <param name="json">変換対象のJson</param>
-        /// <param name="options">変換オプション。Nullの場合、Bloom.Shared.Default.options1に準じます。</param>
+        /// <param name="options">変換オプション。Nullの場合、Bloom.Shared.Setting.Media.options1に準じます。</param>
         public async Task ConvertFromJson(Stream json, JsonSerializerOptions options = null)
         {
             //シリアライズオプションの設定
             if (options == null)
             {
-                options = Default.options1;
+                options = Bloom.Shared.Setting.Media.options1;
             }
             var data = await JsonSerializer.DeserializeAsync<Json>(json, options);
             this.isfream = data.type == "ifream" ? true : false;
@@ -118,7 +115,7 @@ namespace Bloom.Shared
         /// Jsonの内容をこの変数に代入します。
         /// </summary>
         /// <param name="json">変換対象のJson</param>
-        /// <param name="options">変換オプション。Nullの場合、Bloom.Shared.Default.options1に準じます。</param>
+        /// <param name="options">変換オプション。Nullの場合、Bloom.Shared.Setting.Media.options1に準じます。</param>
         public async Task ConvertFromJson(string json, JsonSerializerOptions options = null)
         {
             var memory = new MemoryStream(Encoding.UTF8.GetBytes(json));
@@ -128,13 +125,13 @@ namespace Bloom.Shared
         /// <summary>
         /// この変数の内容をJsonに変換します。
         /// </summary>
-        /// <param name="options">変換オプション。Nullの場合、Bloom.Shared.Default.options1に準じます。</param>
+        /// <param name="options">変換オプション。Nullの場合、Bloom.Shared.Setting.Media.options1に準じます。</param>
         /// <returns>Json変換後の文字列</returns>
         public async Task<string> ConvertToJson(JsonSerializerOptions options = null)
         {
             if (options == null)
             {
-                options = Bloom.Shared.Default.options1;
+                options = Bloom.Shared.Setting.Media.options1;
             }
             var raw = new Json();
             raw.url = this.Url;
@@ -165,13 +162,13 @@ namespace Bloom.Shared
         /// Jsonの内容をこの変数に代入します。
         /// </summary>
         /// <param name="json">変換対象のJson</param>
-        /// <param name="options">変換オプション。Nullの場合、Bloom.Shared.Default.options1に準じます。</param>
+        /// <param name="options">変換オプション。Nullの場合、Bloom.Shared.Setting.Media.options1に準じます。</param>
         public async Task ConvertFromJson(Stream json, JsonSerializerOptions options = null)
         {
             //シリアライズオプションの設定
             if (options == null)
             {
-                options = Default.options1;
+                options = Bloom.Shared.Setting.Media.options1;
             }
             var data = await JsonSerializer.DeserializeAsync<Json>(json, options);
             this.floorTitle = data.floorTitle;
@@ -190,7 +187,7 @@ namespace Bloom.Shared
         /// Jsonの内容をこの変数に代入します。
         /// </summary>
         /// <param name="json">変換対象のJson</param>
-        /// <param name="options">変換オプション。Nullの場合、Bloom.Shared.Default.options1に準じます。</param>
+        /// <param name="options">変換オプション。Nullの場合、Bloom.Shared.Setting.Media.options1に準じます。</param>
         public async Task ConvertFromJson(string json, JsonSerializerOptions options = null)
         {
             var memory = new MemoryStream(Encoding.UTF8.GetBytes(json));
@@ -200,7 +197,7 @@ namespace Bloom.Shared
         /// <summary>
         /// このデータをJsonに変換します。
         /// </summary>
-        /// <param name="options">変換オプション。Nullの場合、Bloom.Shared.Default.options1に準じます。</param>
+        /// <param name="options">変換オプション。Nullの場合、Bloom.Shared.Setting.Media.options1に準じます。</param>
         /// <returns>変換後のJson</returns>
         public async Task<string> ConvertToJson(JsonSerializerOptions options = null)
         {
@@ -256,7 +253,7 @@ namespace Bloom.Shared
         {
             if(options == null)
             {
-                options = Bloom.Shared.Default.options1;
+                options = Bloom.Shared.Setting.Media.options1;
             }
             return JsonSerializer.Serialize(this, typeof(Bloom.Shared.Events), options);
         }
