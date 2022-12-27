@@ -3,7 +3,7 @@ using System.Text;
 using System.Xml.Linq;
 using System.Text.Json;
 
-namespace Bloom.Server.Format
+namespace Bloom.Server.Utility.Format
 {
 
     public class BuildingExpression
@@ -12,7 +12,6 @@ namespace Bloom.Server.Format
         public Dictionary<int, string> paths = new();
         public string name { set; get; }
     }
-
     public class FloorExpression {
         public string id { get; set; } = string.Empty;
         public Building building { get; set; }
@@ -21,7 +20,13 @@ namespace Bloom.Server.Format
         public string floorMap { get; set; }//マップのデータ
         public List<string> groups { get; set; } = new();//団体一覧
     }
-
+    public class GreadExpression
+    {
+        public string id { get; set; } = string.Empty;
+        public int gread { get; set; } = 0;
+        public List<string> groups { get; set; } = new();//団体一覧
+        public string name { get; set; } = string.Empty;
+    }
     public class GroupExpression
     {
         public string id { get; set; }
@@ -46,21 +51,21 @@ namespace Bloom.Server.Format
             {
                 foreach (var item in posterUrl)
                 {
-                    using (var sr = new FileStream(item, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                    using (var sr = new FileStream(DirectoryManeger.GetAbsotoblePath("/data/medias/" + item), FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
                     {
                         group.posterUrl.Add(await JsonSerializer.DeserializeAsync<Media>(sr));
                     }
                 }
                 foreach (var item in videoUrl)
                 {
-                    using (var sr = new FileStream(item, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                    using (var sr = new FileStream(DirectoryManeger.GetAbsotoblePath("/data/medias/" + item), FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
                     {
                         group.videoUrl.Add(await JsonSerializer.DeserializeAsync<Media>(sr));
                     }
                 }
                 foreach (var item in cmUrl)
                 {
-                    using (var sr = new FileStream(item, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                    using (var sr = new FileStream(DirectoryManeger.GetAbsotoblePath("/data/medias/" + item), FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
                     {
                         group.cmUrl.Add(await JsonSerializer.DeserializeAsync<Media>(sr));
                     }
@@ -69,4 +74,5 @@ namespace Bloom.Server.Format
             return group;
         }
     }
+
 }

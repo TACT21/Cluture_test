@@ -52,7 +52,7 @@ app.UseRouting();
 
 app.MapRazorPages();
 app.MapControllers();
-app.MapHub<Map>("/maphub");
+app.MapHub<Exploer>("/maphub");
 Console.WriteLine("add!");
 app.MapHub<Company>("/grouphub");
 app.MapHub<Bloom.Server.Controllers.Vote>("/votehub");

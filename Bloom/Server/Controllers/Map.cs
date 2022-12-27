@@ -2,7 +2,6 @@
 using System.IO;
 using Bloom.Server;
 using Bloom.Server.Controllers;
-using Bloom.Server.Format;
 using System.Text;
 using Bloom.Shared;
 using System.Xml.Linq;
@@ -10,6 +9,8 @@ using System.Text.Json;
 using SixLabors.ImageSharp;
 using System.Xml.Serialization;
 using System.IO;
+using Bloom.Server.Utility;
+using Bloom.Server.Utility.Format;
 
 namespace Bloom.Server.Hubs
 {
@@ -18,9 +19,6 @@ namespace Bloom.Server.Hubs
         /// <summary>
         /// フロアID 取得関数
         /// </summary>
-        /// <param name="building">building</param>
-        /// <param name="floor"></param>
-        /// <returns></returns>
         public async Task<Floor> ClaimFloorID(Building building,int floor)
         {
             var result = new Floor();
@@ -64,15 +62,15 @@ namespace Bloom.Server.Hubs
             var result = await RetrieveFloorIDDev();
             try
             {
-                var indexer = await GetFileText(DirectoryManeger.GetAbsotoblePath(await GetFroor(building,floor)));
+                var indexer = await Filer.GetFileText(DirectoryManeger.GetAbsotoblePath(await GetFroor(building,floor)));
                 var path = "/tmp/"+ Guid.NewGuid().ToString()+".txt";
-                await File.WriteAllTextAsync(DirectoryManeger.GetAbsotoblePath(path), indexer);//検索結果をいったんファイルに
                 //Close時に削除する一時ファイルを作成
                 using (FileStream sr = File.Create(
                     DirectoryManeger.GetAbsotoblePath(path),
                     Encoding.UTF8.GetBytes(indexer).Length,
                     FileOptions.DeleteOnClose))
                 {
+                    await sr.WriteAsync(Encoding.UTF8.GetBytes(indexer));
                     Floor? fl = await JsonSerializer.DeserializeAsync<Floor>(sr);
                     if(fl != null)
                     {
@@ -86,6 +84,9 @@ namespace Bloom.Server.Hubs
             }
             return result;
         }
+        /// <summary>
+        /// フロア本体取得関数
+        /// </summary>
         public async Task<Floor> ClaimFloor(Building building, int floor)
         {
             var result = new Floor();
@@ -124,10 +125,9 @@ namespace Bloom.Server.Hubs
             result.id = "0";
             try
             {
-                var indexer = await RetrieveFloorID(building,floor);
-                //Close時に削除する一時ファイルを作成
+                var indexer = await GetFroor(building,floor);
                 FloorExpression? expression = new();
-                using (var  sr = new FileStream(indexer.path, FileMode.Open,FileAccess.Read,FileShare.ReadWrite))
+                using (var  sr = new FileStream(indexer, FileMode.Open,FileAccess.Read,FileShare.ReadWrite))
                 {
                     expression = await JsonSerializer.DeserializeAsync<FloorExpression>(sr);  
                 }
@@ -137,31 +137,13 @@ namespace Bloom.Server.Hubs
                     result.building = expression.building;
                     result.floorTitle = expression.floorTitle;
                     result.fllor = expression.froor;
+                    var tasks = new List<Task<Group>>();
                     foreach (var item in expression.groups)
                     {
-                        using (var sr = new FileStream(item, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-                        {
-                            var org = await JsonSerializer.DeserializeAsync<GroupExpression>(sr);
-                            if (org != null)
-                            {
-                                var task = org.ConvertToGroup(true);
-                                Media? poster = new();
-                                foreach (var url in org.posterUrl)
-                                {
-                                    using (var psr = new FileStream(url, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-                                    {
-                                        poster = await JsonSerializer.DeserializeAsync<Media>(psr);
-                                    }
-                                    if(poster != null)
-                                    {
-                                        break;
-                                    }
-                                }
-                                var group = await task;
-                                group.posterUrl.Add(poster);
-                            }
-                        }
+                        tasks.Add(Company.RetrieveGroupShoten(item));
                     }
+                    var list = await Task.WhenAll<Group>(tasks);
+                    result.groups = new List<Group>(list);
                 }
             }
             catch
@@ -170,25 +152,15 @@ namespace Bloom.Server.Hubs
             }
             return result;
         }
-        public async Task<string> GetFileText (string path)
-        {
-            string result = "";
-            using (StreamReader sr = new StreamReader(new FileStream(
-                DirectoryManeger.GetAbsotoblePath(path), //./data/FloorIndexer.json.jsonを展開
-                FileMode.Open, //ファイルを開くに。
-                FileAccess.Read, //読み取り専用
-                FileShare.ReadWrite)))//書き込み中を無視
-            {
-                result = await sr.ReadToEndAsync();
-            }
-            return result;
-        }
+        /// <summary>
+        /// フロアの定義ファイル取得関数
+        /// </summary>
         public async Task<string> GetFroor(Building building, int floor)
         {
             var result = "";
             try
             {
-                var indexer = await GetFileText("/data/FloorIndexer.json");
+                var indexer = await Filer.GetFileText("/data/FloorIndexer.json");
                 var path = "/tmp/" + Guid.NewGuid().ToString() + ".txt";
                 await File.WriteAllTextAsync(DirectoryManeger.GetAbsotoblePath(path), indexer);//検索結果をいったんファイルに
                 //Close時に削除する一時ファイルを作成
@@ -226,7 +198,7 @@ namespace Bloom.Server.Hubs
 #if !DEBUG
             try
             {
-                var indexer = await GetFileText("/data/FloorIndexer.json");
+                var indexer = await Filer.GetFileText("/data/FloorIndexer.json");
                 var path = "/tmp/" + Guid.NewGuid().ToString() + ".txt";
                 await File.WriteAllTextAsync(DirectoryManeger.GetAbsotoblePath(path), indexer);//検索結果をいったんファイルに
                 //Close時に削除する一時ファイルを作成

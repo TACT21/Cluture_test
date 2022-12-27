@@ -235,12 +235,13 @@ namespace Bloom.Shared
     /// <summary>
     /// イベント管理クラス。Groupでもいいかもしれない。
     /// </summary>
-    public class Events
+    public class Event
     {
         public string id { get; set; } = string.Empty;
         public string title { get; set; } = string.Empty;
         public string url { get; set; } = string.Empty;
-        public string sumbnaill { get; set; } = string.Empty;
+        public Media sumbnaill { get; set; } = new Media();
+        public EventType type { set; get; } = EventType.Record;
         public async Task ConvertFromJson(string json)
         {
             var data = JsonSerializer.Deserialize<Json>(json);
@@ -265,5 +266,13 @@ namespace Bloom.Shared
             [JsonPropertyName("url")] public string url { get; set; }
             [JsonPropertyName("sumbnaill")] public string sumbnaill { get; set; }
         }
+    }
+    /// <summary>
+    /// イベントタイプ用列挙型
+    /// </summary>
+    public enum EventType
+    {
+        Live = 0,
+        Record = 1,
     }
 }
