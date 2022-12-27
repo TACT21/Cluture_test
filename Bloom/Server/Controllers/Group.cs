@@ -8,70 +8,71 @@ using System.Text.Json;
 using SixLabors.ImageSharp;
 using System.Xml.Serialization;
 using System.IO;
+using Bloom.Server.Utility;
+using Bloom.Server.Utility.Format;
 
 namespace Bloom.Server.Hubs
 {
     public class Company : Hub
     {
-        public async Task ClaimGroup(string str)
+        public async Task ClaimGroup(string id)
         {
 #if DEBUG
-            await SendGroupDev();
+            await RetrieveGroupDev();
 #endif
 #if !DEBUG
-                await SendGroup();
+            await RetrieveGroup(id);
 #endif
         }
-        private async Task SendGroup()
+        public async static Task<Group> RetrieveGroup(string id)
         {
-            string result = string.Empty;
-            List<string[]> files = new List<string[]>();
-            var filePath = DirectoryManeger.GetAbsotoblePath("/map/img_list.csv");
-            if (File.Exists(filePath))
+            var result = new Group();
+            using (var sr = new FileStream(DirectoryManeger.GetAbsotoblePath("/data/groups/" + id + ".json"), FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
             {
-                StreamReader sr = new StreamReader(filePath, Encoding.UTF8);
-                while (!sr.EndOfStream)
+                var org = await JsonSerializer.DeserializeAsync<GroupExpression>(sr);
+                if(org != null)
                 {
-                    try
-                    {
-                        files.Add(sr.ReadLine().Split(","));
-                    }
-                    catch { }
+                    result = await org.ConvertToGroup(false);
                 }
-                sr.Close();
-                foreach (var item in files)
-                {
-                    var a = File.Open(item[1], FileMode.OpenOrCreate);
-                    using (var stream = new MemoryStream())
-                    {
-                        a.CopyTo(stream);
-                        result += (item[0] + "\a data:image/jpeg;base64," + Convert.ToBase64String(stream.ToArray()) + "\n");
-                    }
-                    a.Close();
-                }
-                await Clients.Caller.SendAsync("ReceiveGroup", result);
             }
-            else
-            {
-                File.Create(filePath).Close();
-                await SendGroupDev();
-            }
+            return result;
         }
-        private async Task SendGroupDev()
+        public async static Task<Group> RetrieveGroupShoten(string id)
         {
-            Console.WriteLine("SendGroupDev");
+            var result = new Group();
+            using (var sr = new FileStream(DirectoryManeger.GetAbsotoblePath("/data/group/" + id), FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            {
+                var org = await JsonSerializer.DeserializeAsync<GroupExpression>(sr);
+                if (org != null)
+                {
+                    var task = org.ConvertToGroup(true);
+                    Media? poster = new();
+                    foreach (var url in org.posterUrl)
+                    {
+                        using (var psr = new FileStream(url, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                        {
+                            poster = await JsonSerializer.DeserializeAsync<Media>(psr);
+                        }
+                        if (poster != null)
+                        {
+                            break;
+                        }
+                    }
+                    result = await task;
+                    result.posterUrl.Add(poster);
+                }
+            }
+            return result;
+        }
+        private async Task<Group> RetrieveGroupDev()
+        {
             var result = new Group ();
             result.name = "団体名";
             result.enname = "Company name";
             result.comment = "Here is coment";
             result.location = "<h1>よくわからん</h1>,0";
             Console.WriteLine("SerializeGroup!");
-            using (MemoryStream ms = new MemoryStream())
-            {
-                XmlSerializer xs = new XmlSerializer(typeof(Group));
-                xs.Serialize(ms, result);
-                await Clients.Caller.SendAsync("ReceiveGroup", Encoding.UTF8.GetString(ms.ToArray()));
-            }
+            return result;
         }
     }
 }

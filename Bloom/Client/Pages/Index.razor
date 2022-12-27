@@ -1,0 +1,51 @@
+﻿@using Bloom.Client
+@using Bloom.Shared
+@using Microsoft.AspNetCore.SignalR.Client
+@using Microsoft.AspNetCore.Components
+@using System
+
+@inject NavigationManager nV
+
+@page "/"
+
+@*ここからHTML*@
+<div class="container">
+    <div class="countdown">
+        <h1 class="countdown-title">Countdown to
+        <span id="year" class="new-year">増穂祭</span>
+        </h1>
+        <div class="time-container">
+        <p class="time"><span id="days" class="time-num"></span>@date.Days</p>
+        <p class="time"><span id="hours" class="time-num"></span>@date.Hours</p>
+        <p class="time"><span id="minutes" class="time-num"></span>@date.Minutes</p>
+        <p class="time"><span id="seconds" class="time-num"></span>@date.Seconds</p>
+        </div>
+    </div>
+</div>
+@*ここまでHTML*@
+
+@code {
+    private TimeSpan date;
+    protected override async Task OnInitializedAsync()
+    {
+        date = Bloom.Shared.Setting.Date.held.Subtract(DateTime.Now);
+        Timer();
+        StateHasChanged();
+        if(date < new TimeSpan(0))
+        {
+            nV.NavigateTo("/index");
+        }
+    }
+
+    //待つ必要がない奴。カウントダウン君
+    public async void Timer()
+    {
+        while (true)
+        {
+            await Task.Delay(1000);
+            date -= new TimeSpan(0,0,0,1);
+            StateHasChanged();
+        }
+    }
+
+}

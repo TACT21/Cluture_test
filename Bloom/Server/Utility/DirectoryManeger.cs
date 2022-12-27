@@ -1,4 +1,4 @@
-﻿namespace Bloom.Server
+﻿namespace Bloom.Server.Utility
 {
     public static class DirectoryManeger
     {

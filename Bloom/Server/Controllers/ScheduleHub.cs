@@ -2,66 +2,138 @@
 using System.IO;
 using Bloom.Server;
 using Bloom.Server.Controllers;
+using Bloom.Server.Utility;
+using Bloom.Server.Utility.Format;
 using System.Text;
 using Bloom.Shared;
-using System.Xml.Linq;
 using System.Text.Json;
 using SixLabors.ImageSharp;
-using System.Xml.Serialization;
 using System.IO;
 
 namespace Bloom.Server.Controllers
 {
     public class ScheduleHub : Hub
     {
-        public async Task Claim()
+        public async Task<List<Event>> ClaimSchedules()
         {
+            var result = new List<Event>();
 #if DEBUG
-            await SendMapImageDev();
+            result..id = "0";
+            result..title = "Dev";
+            result..url = "/Live/Demo";
 #endif
 #if !DEBUG
-                await SendMapImage();
+            try
+            {
+                result = await RetrieveSchedules();
+            }
+            catch (Exception ex)
+            {
+                var path = DirectoryManeger.GetAbsotoblePath("/logs/" + DateTime.UtcNow.ToString());
+                Console.WriteLine("Warning! " + ex.Message + " *Log is at" + path);
+                File.WriteAllText(path, ex.ToString());
+            }
 #endif
+            try
+            {
+                var indexer = await Filer.GetFileText(DirectoryManeger.GetAbsotoblePath("/data/events.json"));
+                var path = "/tmp/" + Guid.NewGuid().ToString() + ".json";
+                //Close時に削除する一時ファイルを作成
+                using (FileStream fs = File.Create(
+                    DirectoryManeger.GetAbsotoblePath(path),
+                    Encoding.UTF8.GetBytes(indexer).Length,
+                    FileOptions.DeleteOnClose))
+                {
+                    await fs.WriteAsync(Encoding.UTF8.GetBytes(indexer));
+                    await JsonSerializer.SerializeAsync<List<Event>>(fs, result);
+                    using (StreamReader sr = new StreamReader(fs))
+                    {
+                        await Clients.Caller.SendAsync("ReceiveFloorID", sr.ReadToEnd());
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                var path = DirectoryManeger.GetAbsotoblePath("/logs/" + DateTime.UtcNow.ToString());
+                Console.WriteLine("Warning! " + ex.Message + " *Log is at" + path);
+                File.WriteAllText(path, ex.ToString(), Encoding.UTF8);
+            }
+
+            return result;
+
         }
 
-        private async Task SendMapImage()
+        private async Task<List<Event>> RetrieveSchedules()
         {
-            string result = string.Empty;
-            List<string[]> files = new List<string[]>();
-            var filePath = DirectoryManeger.GetAbsotoblePath("/map/img_list.csv");
-            if (File.Exists(filePath))
+            var result = new List<Event>();
+            try
             {
-                StreamReader sr = new StreamReader(filePath, Encoding.UTF8);
-                while (!sr.EndOfStream)
+                var indexer = await Filer.GetFileText(DirectoryManeger.GetAbsotoblePath("/data/events.json"));
+                var path = "/tmp/" + Guid.NewGuid().ToString() + ".json";
+                //Close時に削除する一時ファイルを作成
+                using (FileStream sr = File.Create(
+                    DirectoryManeger.GetAbsotoblePath(path),
+                    Encoding.UTF8.GetBytes(indexer).Length,
+                    FileOptions.DeleteOnClose))
                 {
-                    try
-                    {
-                        files.Add(sr.ReadLine().Split(","));
-                    }
-                    catch { }
+                    await sr.WriteAsync(Encoding.UTF8.GetBytes(indexer));
+                    result = await JsonSerializer.DeserializeAsync<List<Event>>(sr);
                 }
-                sr.Close();
-                foreach (var item in files)
-                {
-                    var a = File.Open(item[1], FileMode.OpenOrCreate);
-                    using (var stream = new MemoryStream())
-                    {
-                        a.CopyTo(stream);
-                        result += (item[0] + "\a data:image/jpeg;base64," + Convert.ToBase64String(stream.ToArray()) + "\n");
-                    }
-                    a.Close();
-                }
-                await Clients.Caller.SendAsync("ReceiveImages", result);
             }
-            else
+            catch
             {
-                File.Create(filePath).Close();
-                await SendMapImageDev();
+                throw;
             }
+            return result;
         }
-        private async Task SendMapImageDev()
+
+        public async Task<List<Event>> JoinLive()
         {
-            await Clients.Caller.SendAsync("ReceiveImages", "");
+            var result = new List<Event>();
+#if DEBUG
+            result..id = "0";
+            result..title = "Dev";
+            result..url = "/Live/Demo";
+#endif
+#if !DEBUG
+            try
+            {
+                result = await RetrieveSchedules();
+            }
+            catch (Exception ex)
+            {
+                var path = DirectoryManeger.GetAbsotoblePath("/logs/" + DateTime.UtcNow.ToString());
+                Console.WriteLine("Warning! " + ex.Message + " *Log is at" + path);
+                File.WriteAllText(path, ex.ToString());
+            }
+#endif
+            try
+            {
+                var indexer = await Filer.GetFileText(DirectoryManeger.GetAbsotoblePath("/data/events.json"));
+                var path = "/tmp/" + Guid.NewGuid().ToString() + ".json";
+                //Close時に削除する一時ファイルを作成
+                using (FileStream fs = File.Create(
+                    DirectoryManeger.GetAbsotoblePath(path),
+                    Encoding.UTF8.GetBytes(indexer).Length,
+                    FileOptions.DeleteOnClose))
+                {
+                    await fs.WriteAsync(Encoding.UTF8.GetBytes(indexer));
+                    await JsonSerializer.SerializeAsync<List<Event>>(fs, result);
+                    using (StreamReader sr = new StreamReader(fs))
+                    {
+                        await Clients.Caller.SendAsync("ReceiveFloorID", sr.ReadToEnd());
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                var path = DirectoryManeger.GetAbsotoblePath("/logs/" + DateTime.UtcNow.ToString());
+                Console.WriteLine("Warning! " + ex.Message + " *Log is at" + path);
+                File.WriteAllText(path, ex.ToString(), Encoding.UTF8);
+            }
+
+            return result;
+
         }
     }
 }

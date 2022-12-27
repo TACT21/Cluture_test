@@ -5,13 +5,10 @@ using System.IO;
 using static System.Net.Mime.MediaTypeNames;
 using System.Text;
 using System.Runtime.InteropServices;
+using Bloom.Shared.Setting;
 
 namespace Bloom.Shared
 {
-    internal static class Default
-    {
-        internal static JsonSerializerOptions options1 = new JsonSerializerOptions();
-    }
     /// <summary>
     /// 出展団体の管理用クラス
     /// </summary>
@@ -20,23 +17,23 @@ namespace Bloom.Shared
         public string id { get; set; }
         public string name { get; set; }
         public string enname { get; set; }
-        public List<Media>? posterUrl { get; set; }
+        public List<Media> posterUrl { get; set; } = new List<Media>();
         public string? comment { get; set; }
-        public List<Media>? videoUrl { get; set; }
-        public List<Media>? cmUrl { get; set; }
+        public List<Media> videoUrl { get; set; } = new List<Media>();
+        public List<Media> cmUrl { get; set; } = new List<Media>();
         public string? location { get; set; }
         public string? contentUrl { get; set; }
         /// <summary>
         /// Jsonの内容をこの変数に代入します。
         /// </summary>
         /// <param name="json">変換対象のJson</param>
-        /// <param name="options">変換オプション。Nullの場合、Bloom.Shared.Default.options1に準じます。</param>
+        /// <param name="options">変換オプション。Nullの場合、Bloom.Shared.Setting.Media.options1に準じます。</param>
         public async Task ConvertFromJson(Stream json,JsonSerializerOptions options = null)
         {
             //シリアライズオプションの設定
             if(options== null)
             {
-                options = Default.options1;
+                options = Bloom.Shared.Setting.Media.options1;
             }
             var data = await JsonSerializer.DeserializeAsync<Json>(json,options);
             this.id = data.id;
@@ -63,7 +60,7 @@ namespace Bloom.Shared
         /// Jsonの内容をこの変数に代入します。
         /// </summary>
         /// <param name="json">変換対象のJson</param>
-        /// <param name="options">変換オプション。Nullの場合、Bloom.Shared.Default.options1に準じます。</param>
+        /// <param name="options">変換オプション。Nullの場合、Bloom.Shared.Setting.Media.options1に準じます。</param>
         public async Task ConvertFromJson(string json, JsonSerializerOptions options = null)
         {
             var memory = new MemoryStream(Encoding.UTF8.GetBytes(json));
@@ -95,28 +92,30 @@ namespace Bloom.Shared
         public bool isfream { get; set; }//互換性維持のために残置。Typeを使用すること
         public string type { get; set; }
         public string Url { set; get; }
+        public bool isWide { set; get; } = true;
         /// <summary>
         /// Jsonの内容をこの変数に代入します。
         /// </summary>
         /// <param name="json">変換対象のJson</param>
-        /// <param name="options">変換オプション。Nullの場合、Bloom.Shared.Default.options1に準じます。</param>
+        /// <param name="options">変換オプション。Nullの場合、Bloom.Shared.Setting.Media.options1に準じます。</param>
         public async Task ConvertFromJson(Stream json, JsonSerializerOptions options = null)
         {
             //シリアライズオプションの設定
             if (options == null)
             {
-                options = Default.options1;
+                options = Bloom.Shared.Setting.Media.options1;
             }
             var data = await JsonSerializer.DeserializeAsync<Json>(json, options);
             this.isfream = data.type == "ifream" ? true : false;
             this.type = data.type;
             this.Url = data.url;
+            this.isWide = data.type == "wide" ? true : false;
         }
         /// <summary>
         /// Jsonの内容をこの変数に代入します。
         /// </summary>
         /// <param name="json">変換対象のJson</param>
-        /// <param name="options">変換オプション。Nullの場合、Bloom.Shared.Default.options1に準じます。</param>
+        /// <param name="options">変換オプション。Nullの場合、Bloom.Shared.Setting.Media.options1に準じます。</param>
         public async Task ConvertFromJson(string json, JsonSerializerOptions options = null)
         {
             var memory = new MemoryStream(Encoding.UTF8.GetBytes(json));
@@ -126,21 +125,26 @@ namespace Bloom.Shared
         /// <summary>
         /// この変数の内容をJsonに変換します。
         /// </summary>
-        /// <param name="options">変換オプション。Nullの場合、Bloom.Shared.Default.options1に準じます。</param>
+        /// <param name="options">変換オプション。Nullの場合、Bloom.Shared.Setting.Media.options1に準じます。</param>
         /// <returns>Json変換後の文字列</returns>
         public async Task<string> ConvertToJson(JsonSerializerOptions options = null)
         {
             if (options == null)
             {
-                options = Bloom.Shared.Default.options1;
+                options = Bloom.Shared.Setting.Media.options1;
             }
-            return JsonSerializer.Serialize(this, typeof(Bloom.Shared.Media), options);
+            var raw = new Json();
+            raw.url = this.Url;
+            raw.type = this.type;
+            raw.Iswide = this.isWide ? "wide" : "thin";
+            return JsonSerializer.Serialize(this, typeof(Bloom.Shared.Media.Json), options);
         }
 
         class Json
         {
-            [JsonPropertyName("type")] public string type { get; set; }
-            [JsonPropertyName("Url")] public string url { get; set; }
+            [JsonPropertyName("type")] public string type { get; set; } = String.Empty;
+            [JsonPropertyName("Url")] public string url { get; set; } = String.Empty;
+            [JsonPropertyName("Wide")] public string Iswide { get; set; } = String.Empty;
         }
     }
     /// <summary>
@@ -149,6 +153,8 @@ namespace Bloom.Shared
     public class Floor
     {
         public string id { get; set; } =string.Empty;
+        public Building building { get; set; }
+        public int fllor { get; set; }
         public string floorTitle { get; set; } = string.Empty;//フロアタイトル
         public Media floorMap { get; set; }//マップのデータ
         public List<Group> groups { get; set; } = new List<Group>();//団体一覧
@@ -156,13 +162,13 @@ namespace Bloom.Shared
         /// Jsonの内容をこの変数に代入します。
         /// </summary>
         /// <param name="json">変換対象のJson</param>
-        /// <param name="options">変換オプション。Nullの場合、Bloom.Shared.Default.options1に準じます。</param>
+        /// <param name="options">変換オプション。Nullの場合、Bloom.Shared.Setting.Media.options1に準じます。</param>
         public async Task ConvertFromJson(Stream json, JsonSerializerOptions options = null)
         {
             //シリアライズオプションの設定
             if (options == null)
             {
-                options = Default.options1;
+                options = Bloom.Shared.Setting.Media.options1;
             }
             var data = await JsonSerializer.DeserializeAsync<Json>(json, options);
             this.floorTitle = data.floorTitle;
@@ -181,7 +187,7 @@ namespace Bloom.Shared
         /// Jsonの内容をこの変数に代入します。
         /// </summary>
         /// <param name="json">変換対象のJson</param>
-        /// <param name="options">変換オプション。Nullの場合、Bloom.Shared.Default.options1に準じます。</param>
+        /// <param name="options">変換オプション。Nullの場合、Bloom.Shared.Setting.Media.options1に準じます。</param>
         public async Task ConvertFromJson(string json, JsonSerializerOptions options = null)
         {
             var memory = new MemoryStream(Encoding.UTF8.GetBytes(json));
@@ -191,7 +197,7 @@ namespace Bloom.Shared
         /// <summary>
         /// このデータをJsonに変換します。
         /// </summary>
-        /// <param name="options">変換オプション。Nullの場合、Bloom.Shared.Default.options1に準じます。</param>
+        /// <param name="options">変換オプション。Nullの場合、Bloom.Shared.Setting.Media.options1に準じます。</param>
         /// <returns>変換後のJson</returns>
         public async Task<string> ConvertToJson(JsonSerializerOptions options = null)
         {
@@ -207,20 +213,35 @@ namespace Bloom.Shared
         private class Json
         {
             [JsonPropertyName("id")] public string id { get; set; }
+            /// <summary>
+            /// 階の名前
+            /// </summary>
             [JsonPropertyName("floorTitle")] public string floorTitle { get; set; }
             [JsonPropertyName("map")] public Media map { get; set; }
             [JsonPropertyName("groups")] public Dictionary<string,Group> groups { get; set; }
         }
     }
     /// <summary>
+    /// 棟識別用列挙型
+    /// </summary>
+    public enum Building
+    {
+        Gernal = 0,
+        Central = 1,
+        High = 2,
+        Junior = 3,
+        Hall = 4,
+    }
+    /// <summary>
     /// イベント管理クラス。Groupでもいいかもしれない。
     /// </summary>
-    public class Events
+    public class Event
     {
         public string id { get; set; } = string.Empty;
         public string title { get; set; } = string.Empty;
         public string url { get; set; } = string.Empty;
-        public string sumbnaill { get; set; } = string.Empty;
+        public Media sumbnaill { get; set; } = new Media();
+        public EventType type { set; get; } = EventType.Record;
         public async Task ConvertFromJson(string json)
         {
             var data = JsonSerializer.Deserialize<Json>(json);
@@ -233,7 +254,7 @@ namespace Bloom.Shared
         {
             if(options == null)
             {
-                options = Bloom.Shared.Default.options1;
+                options = Bloom.Shared.Setting.Media.options1;
             }
             return JsonSerializer.Serialize(this, typeof(Bloom.Shared.Events), options);
         }
@@ -246,5 +267,12 @@ namespace Bloom.Shared
             [JsonPropertyName("sumbnaill")] public string sumbnaill { get; set; }
         }
     }
-
+    /// <summary>
+    /// イベントタイプ用列挙型
+    /// </summary>
+    public enum EventType
+    {
+        Live = 0,
+        Record = 1,
+    }
 }

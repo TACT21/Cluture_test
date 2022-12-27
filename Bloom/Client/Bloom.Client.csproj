@@ -8,12 +8,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Remove="Pages\comitte\Debug.razor" />
     <Content Remove="wwwroot\Javascript\storage.js" />
   </ItemGroup>
 
   <ItemGroup>
-    <_ContentIncludedByDefault Remove="Pages\comitte\Debug.razor" />
     <_ContentIncludedByDefault Remove="wwwroot\Javascript\storage.js" />
   </ItemGroup>
 
@@ -37,12 +35,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="Pages\comitte\Debug.razor" />
     <None Include="wwwroot\Javascript\storage.js" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <UpToDateCheckInput Remove="Pages\comitte\Debug.razor" />
   </ItemGroup>
 
 </Project>
