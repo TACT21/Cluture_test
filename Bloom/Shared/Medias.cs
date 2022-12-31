@@ -238,7 +238,7 @@ namespace Bloom.Shared
     public class Event
     {
         public string id { get; set; } = string.Empty;
-        public string title { get; set; } = string.Empty;
+        public string title3 { get; set; } = string.Empty;
         public string url { get; set; } = string.Empty;
         public Media sumbnaill { get; set; } = new Media();
         public EventType type { set; get; } = EventType.Record;

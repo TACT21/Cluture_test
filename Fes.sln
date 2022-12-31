@@ -9,7 +9,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bloom.Client", "Bloom\Clien
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bloom.Shared", "Bloom\Shared\Bloom.Shared.csproj", "{66E6C650-4DA9-4791-A85C-FDCF25490ED1}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Developer", "Developer\Developer.csproj", "{487D4B4E-F251-408D-A938-3451AAC9E2A0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bloom.Server.Dev.Org", "Developer\Bloom.Server.Dev.Org.csproj", "{487D4B4E-F251-408D-A938-3451AAC9E2A0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bloom.Server.Dev.Chair", "Bloom.Comitte.Developer\Bloom.Server.Dev.Chair.csproj", "{8156C69F-6D9F-4B83-84F6-3511B9869081}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bloom.Server.Filer", "Bloom.Server.Filer\Bloom.Server.Filer.csproj", "{EE6FE2EF-7CF2-4C18-93DF-2420C364E31E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +37,14 @@ Global
 		{487D4B4E-F251-408D-A938-3451AAC9E2A0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{487D4B4E-F251-408D-A938-3451AAC9E2A0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{487D4B4E-F251-408D-A938-3451AAC9E2A0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8156C69F-6D9F-4B83-84F6-3511B9869081}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8156C69F-6D9F-4B83-84F6-3511B9869081}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8156C69F-6D9F-4B83-84F6-3511B9869081}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8156C69F-6D9F-4B83-84F6-3511B9869081}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EE6FE2EF-7CF2-4C18-93DF-2420C364E31E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EE6FE2EF-7CF2-4C18-93DF-2420C364E31E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EE6FE2EF-7CF2-4C18-93DF-2420C364E31E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EE6FE2EF-7CF2-4C18-93DF-2420C364E31E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
