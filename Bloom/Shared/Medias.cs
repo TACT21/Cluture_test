@@ -242,21 +242,42 @@ namespace Bloom.Shared
         public string url { get; set; } = string.Empty;
         public Media sumbnaill { get; set; } = new Media();
         public EventType type { set; get; } = EventType.Record;
-        public async Task ConvertFromJson(string json)
+        public async Task ConvertFromJson(Stream json, JsonSerializerOptions options = null)
         {
-            var data = JsonSerializer.Deserialize<Json>(json);
+            //シリアライズオプションの設定
+            if (options == null)
+            {
+                options = Bloom.Shared.Setting.Media.options1;
+            }
+            var data = await JsonSerializer.DeserializeAsync<Json>(json, options);
             this.title = data.title;
             this.url = data.url;
-            this.sumbnaill= data.sumbnaill;
+            await this.sumbnaill.ConvertFromJson(data.sumbnaill);
+            try
+            {
+                this.type = (EventType)Enum.Parse(typeof(EventType),data.type);
+            }
+            catch {}
+        }
+
+        public async Task ConvertFromJson(string json, JsonSerializerOptions options = null)
+        {
+            var memory = new MemoryStream(Encoding.UTF8.GetBytes(json));
+            await ConvertFromJson(memory, options);
         }
 
         public async Task<string> ConvertToJson(JsonSerializerOptions options = null)
         {
+            var data = new Json();
+            data.title = this.title;
+            data.id = this.id;
+            data.type = this.type.ToString();
+            data.sumbnaill = await this.sumbnaill.ConvertToJson();
             if(options == null)
             {
                 options = Bloom.Shared.Setting.Media.options1;
             }
-            return JsonSerializer.Serialize(this, typeof(Bloom.Shared.Events), options);
+            return JsonSerializer.Serialize(this, typeof(Bloom.Shared.Event.Json), options);
         }
 
         private class Json
@@ -265,6 +286,7 @@ namespace Bloom.Shared
             [JsonPropertyName("title")] public string title { get; set; }
             [JsonPropertyName("url")] public string url { get; set; }
             [JsonPropertyName("sumbnaill")] public string sumbnaill { get; set; }
+            [JsonPropertyName("event_type")] public string type { set; get; }
         }
     }
     /// <summary>

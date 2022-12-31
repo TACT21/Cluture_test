@@ -18,9 +18,7 @@ namespace Bloom.Server.Controllers
         {
             var result = new List<Event>();
 #if DEBUG
-            result..id = "0";
-            result..title = "Dev";
-            result..url = "/Live/Demo";
+            result.Add(new Event() { id = "0",title="Dev",url="/Live/Demo",type=EventType.Live});
 #endif
 #if !DEBUG
             try
@@ -36,21 +34,17 @@ namespace Bloom.Server.Controllers
 #endif
             try
             {
-                var indexer = await Filer.GetFileText(DirectoryManeger.GetAbsotoblePath("/data/events.json"));
-                var path = "/tmp/" + Guid.NewGuid().ToString() + ".json";
+                var path = "/tmp/" + Guid.NewGuid().ToString() + ".txt";
                 //Close時に削除する一時ファイルを作成
-                using (FileStream fs = File.Create(
-                    DirectoryManeger.GetAbsotoblePath(path),
-                    Encoding.UTF8.GetBytes(indexer).Length,
-                    FileOptions.DeleteOnClose))
+                using (FileStream fs = File.Create(DirectoryManeger.GetAbsotoblePath(path)))
                 {
-                    await fs.WriteAsync(Encoding.UTF8.GetBytes(indexer));
-                    await JsonSerializer.SerializeAsync<List<Event>>(fs, result);
+                    await JsonSerializer.SerializeAsync(fs, result);
                     using (StreamReader sr = new StreamReader(fs))
                     {
-                        await Clients.Caller.SendAsync("ReceiveFloorID", sr.ReadToEnd());
+                        await Clients.Caller.SendAsync("ReceiveSchedules", sr.ReadToEnd());
                     }
                 }
+                File.Delete(DirectoryManeger.GetAbsotoblePath(path));
             }
             catch (Exception ex)
             {
@@ -58,7 +52,6 @@ namespace Bloom.Server.Controllers
                 Console.WriteLine("Warning! " + ex.Message + " *Log is at" + path);
                 File.WriteAllText(path, ex.ToString(), Encoding.UTF8);
             }
-
             return result;
 
         }
@@ -85,55 +78,6 @@ namespace Bloom.Server.Controllers
                 throw;
             }
             return result;
-        }
-
-        public async Task<List<Event>> JoinLive()
-        {
-            var result = new List<Event>();
-#if DEBUG
-            result..id = "0";
-            result..title = "Dev";
-            result..url = "/Live/Demo";
-#endif
-#if !DEBUG
-            try
-            {
-                result = await RetrieveSchedules();
-            }
-            catch (Exception ex)
-            {
-                var path = DirectoryManeger.GetAbsotoblePath("/logs/" + DateTime.UtcNow.ToString());
-                Console.WriteLine("Warning! " + ex.Message + " *Log is at" + path);
-                File.WriteAllText(path, ex.ToString());
-            }
-#endif
-            try
-            {
-                var indexer = await Filer.GetFileText(DirectoryManeger.GetAbsotoblePath("/data/events.json"));
-                var path = "/tmp/" + Guid.NewGuid().ToString() + ".json";
-                //Close時に削除する一時ファイルを作成
-                using (FileStream fs = File.Create(
-                    DirectoryManeger.GetAbsotoblePath(path),
-                    Encoding.UTF8.GetBytes(indexer).Length,
-                    FileOptions.DeleteOnClose))
-                {
-                    await fs.WriteAsync(Encoding.UTF8.GetBytes(indexer));
-                    await JsonSerializer.SerializeAsync<List<Event>>(fs, result);
-                    using (StreamReader sr = new StreamReader(fs))
-                    {
-                        await Clients.Caller.SendAsync("ReceiveFloorID", sr.ReadToEnd());
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                var path = DirectoryManeger.GetAbsotoblePath("/logs/" + DateTime.UtcNow.ToString());
-                Console.WriteLine("Warning! " + ex.Message + " *Log is at" + path);
-                File.WriteAllText(path, ex.ToString(), Encoding.UTF8);
-            }
-
-            return result;
-
         }
     }
 }
