@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.SignalR;
 using System.IO;
 using Bloom.Server;
+using Bloom.Server.Utility;
 using System.Text;
 using Bloom.Shared;
 using System.Xml.Linq;
@@ -17,15 +18,14 @@ namespace Bloom.Server.Controllers
         public async Task ThrowVote(string str)
         {
 #if DEBUG
-            await RegistVoteDev(str);
+            await RegistVoteDev();
 #endif
 #if !DEBUG
-                await RegistVote(str);
+            await RegistVote(str);
 #endif
         }
         private async Task RegistVote(string mess)
         {
-            Console.WriteLine(limit + ","+DateTime.Now);
             if(DateTime.Now < limit)
             {
                 await Clients.Caller.SendAsync("BeforResist");
@@ -78,11 +78,12 @@ namespace Bloom.Server.Controllers
             }
         }
 
-        private async Task RegistVoteDev(string str)
+        private async Task RegistVoteDev()
         {
             Console.WriteLine(limit + "," + DateTime.Now);
             Console.WriteLine("Vote to " + str + "from" + string.Empty);
             await Clients.Caller.SendAsync("BeforResist");
         }
     }
+
 }
