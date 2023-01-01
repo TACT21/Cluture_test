@@ -13,8 +13,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Client\Bloom.Client.csproj" />
-    <ProjectReference Include="..\Shared\Bloom.Shared.csproj" />
+    <ProjectReference Include="..\..\Client\Bloom.Client.csproj" />
+    <ProjectReference Include="..\..\Shared\Bloom.Shared.csproj" />
+    <ProjectReference Include="..\Filer\Bloom.Server.Filer.csproj" />
   </ItemGroup>
 
 

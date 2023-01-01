@@ -15,6 +15,7 @@ namespace Bloom.Shared
     public class Group
     {
         public string id { get; set; }
+        public string ver { get; set; }
         public string name { get; set; }
         public string enname { get; set; }
         public List<Media> posterUrl { get; set; } = new List<Media>();
@@ -74,6 +75,7 @@ namespace Bloom.Shared
         public class Json
         {
             [JsonPropertyName("Id")] public string id { get; set; }
+            [JsonPropertyName("Version")] public string var { get; set; }
             [JsonPropertyName("Name")] public string name { get; set; }
             [JsonPropertyName("EnName")] public string enName { get; set; }
             [JsonPropertyName("PosterURL")] public Dictionary<string,Media>? posterUrl { get; set; }

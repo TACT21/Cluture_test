@@ -4,18 +4,6 @@ using System.Collections;
 
 namespace Bloom.Server.Utility
 {
-    public static class Filer
-    {
-        /// <summary>
-        /// Reading a text file asynchronously (Obsoleted)
-        /// </summary>
-        public static async Task<string> GetFileText(string path)
-        {
-            var result = "";
-            
-            return result;
-        }
-    }
     public enum RenewMode
     {
         PerRead = 0,
@@ -208,7 +196,6 @@ namespace Bloom.Server.Utility
             }
         }
     }
-
     /// <summary>
     /// Virtual stream class in optimistic locking (without using id query and manageing by date)
     /// </summary>
@@ -219,6 +206,7 @@ namespace Bloom.Server.Utility
         private List<string> operates = new List<string>();
         private int line = 0;
         public bool isEnd = true;
+        public byte[] content;
         public RepressiveWriter(FileStream stream)
         {
             fs = stream;
@@ -242,9 +230,7 @@ namespace Bloom.Server.Utility
         public void Refresh()
         {
             isEnd = false;
-            content = sr.ReadToEnd();
-            content.Replace("\r\n", "\n");
-            content.Replace("\r", "\n");
+            var a = fs.Read
         }
         public async Task<string> ReadToEndAsync()
         {
@@ -257,7 +243,10 @@ namespace Bloom.Server.Utility
         public async Task RefreshAsync()
         {
             isEnd = false;
-            content = await sr.ReadToEndAsync();
+            while (true)
+            {
+
+            }
         }
         public void Sync()
         {
