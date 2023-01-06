@@ -12,7 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Bloom\Shared\Bloom.Shared.csproj" />
+    <ProjectReference Include="..\..\..\Shared\Bloom.Shared.csproj" />
   </ItemGroup>
 
 </Project>

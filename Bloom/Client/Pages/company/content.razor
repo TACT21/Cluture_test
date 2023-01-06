@@ -153,7 +153,7 @@
     private Media poster = new Media();
     private bool isFun { set; get; }
     private bool isCM { set; get; }
-    public Group? detail { set; get; }
+    public Company? detail { set; get; }
     private bool isMovie { set; get; }
     private int floorCode { set; get; }
     public byte? state { set; get; } = 1;
@@ -177,7 +177,7 @@
         }
         StateHasChanged(); 
         hubConnection = new HubConnectionBuilder().WithUrl(nV.ToAbsoluteUri("/grouphub")).Build();
-        hubConnection.On<string>("ReceiveGroup", (message) =>
+        hubConnection.On<string>("ReceiveCompany", (message) =>
         {
             Console.WriteLine("Receive");
             var a = Encoding.UTF8.GetBytes(message);
@@ -207,7 +207,7 @@
         });
         await hubConnection.StartAsync();
         Console.WriteLine("Claim");
-        await hubConnection.SendAsync("ClaimGroup", paramstr);
+        await hubConnection.SendAsync("ClaimCompany", paramstr);
     }
 
     private async Task Change(ChangeTo identifer)
@@ -235,4 +235,4 @@
             await hubConnection.DisposeAsync();
         }
     }
-}z
+}

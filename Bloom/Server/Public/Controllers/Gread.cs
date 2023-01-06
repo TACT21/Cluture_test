@@ -4,6 +4,7 @@ using Bloom.Server;
 using Bloom.Server.Controllers;
 using Bloom.Server.Utility;
 using Bloom.Server.Utility.Format;
+using Bloom.Server.Filer.Handler;
 using System.Text;
 using Bloom.Shared;
 using System.Xml.Linq;
@@ -14,18 +15,21 @@ using System.IO;
 
 namespace Bloom.Server.Hubs
 {
-    public class Gread :Hub
+    public class GreadHub :Hub
     {
         public async Task<Floor> ClaimGread(int gread)
         {
             var result = new Floor();
 #if DEBUG
-            result = await RetriveGreadDev();
+            result = new Floor()
+            {
+                floorTitle = "Dev"
+            };
 #endif
 #if !DEBUG
             try
             {
-                result = await RetriveGread(gread);
+                result = await GreadHandler.RetriveGread(gread);
             }
             catch (Exception ex)
             {
@@ -47,41 +51,6 @@ namespace Bloom.Server.Hubs
             }
 
             return result;
-        }
-        private async Task<Floor> RetriveGread(int greadNumber)
-        {
-            var greads = new GreadExpression[0];
-            var result = new Floor();
-            using (var sr = new FileStream(DirectoryManeger.GetAbsotoblePath("/gread_indexer.json"), FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-            {
-                greads = await JsonSerializer.DeserializeAsync<GreadExpression[]>(sr);
-            }
-            if(greads == null)
-            {
-                return RetriveGreadDev();
-            }
-            foreach (var item in greads)
-            {
-                if(item.gread == greadNumber)
-                {
-                    result.id = item.id;
-                    result.floorTitle = item.name;
-                    var tasks = new List<Task<Group>>();
-                    foreach (var group in item.groups)
-                    {
-                        tasks.Add(Company.RetrieveGroupShoten(group));
-                    }
-                    var groups = await Task.WhenAll(tasks);
-                    result.groups = new List<Group>(groups);
-                }
-            }
-            return result;
-        }
-        private Floor RetriveGreadDev()
-        {
-            var floor = new Floor();
-            floor.floorTitle = "Dev";
-            return floor;
         }
         public async Task<Dictionary<int,string>> ClaimGreads()
         {

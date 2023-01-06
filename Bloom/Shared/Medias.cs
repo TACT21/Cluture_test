@@ -12,7 +12,7 @@ namespace Bloom.Shared
     /// <summary>
     /// 出展団体の管理用クラス
     /// </summary>
-    public class Group
+    public class Company
     {
         public string id { get; set; }
         public string ver { get; set; }
@@ -70,7 +70,7 @@ namespace Bloom.Shared
         }
         public async Task<string> ConvertToJson(JsonSerializerOptions options = null)
         {
-            return JsonSerializer.Serialize(this, typeof(Bloom.Shared.Group), options);
+            return JsonSerializer.Serialize(this, typeof(Bloom.Shared.Company), options);
         }
         public class Json
         {
@@ -90,11 +90,14 @@ namespace Bloom.Shared
     /// ポスターやCM等電子データの保持クラス。
     /// </summary>
     public class Media
-    {        
+    {
+        public string id { get; set; }
         public bool isfream { get; set; }//互換性維持のために残置。Typeを使用すること
         public string type { get; set; }
         public string Url { set; get; }
         public bool isWide { set; get; } = true;
+        public int Width { set; get; } = 0;
+        public int Height { set; get; } = 0;
         /// <summary>
         /// Jsonの内容をこの変数に代入します。
         /// </summary>
@@ -109,9 +112,13 @@ namespace Bloom.Shared
             }
             var data = await JsonSerializer.DeserializeAsync<Json>(json, options);
             this.isfream = data.type == "ifream" ? true : false;
+            this.isfream = data.type == "ifream" ? true : false;
             this.type = data.type;
             this.Url = data.url;
-            this.isWide = data.type == "wide" ? true : false;
+            this.id = data.id;
+            this.Width = Int32.Parse(data.width);
+            this.Height = Int32.Parse(data.height);
+            this.isWide = (Int32.Parse(data.width) > Int32.Parse(data.height)) ? true : false;
         }
         /// <summary>
         /// Jsonの内容をこの変数に代入します。
@@ -138,15 +145,19 @@ namespace Bloom.Shared
             var raw = new Json();
             raw.url = this.Url;
             raw.type = this.type;
-            raw.Iswide = this.isWide ? "wide" : "thin";
+            raw.width = this.Width.ToString();
+            raw.height = this.Height.ToString();
+            raw.id = this.id;
             return JsonSerializer.Serialize(this, typeof(Bloom.Shared.Media.Json), options);
         }
 
         class Json
         {
+            [JsonPropertyName("id")] public string id { get; set; } = String.Empty;
             [JsonPropertyName("type")] public string type { get; set; } = String.Empty;
             [JsonPropertyName("Url")] public string url { get; set; } = String.Empty;
-            [JsonPropertyName("Wide")] public string Iswide { get; set; } = String.Empty;
+            [JsonPropertyName("Width")] public string width { get; set; } = String.Empty;
+            [JsonPropertyName("Height")] public string height { get; set; } = String.Empty;
         }
     }
     /// <summary>
@@ -154,12 +165,12 @@ namespace Bloom.Shared
     /// </summary>
     public class Floor
     {
-        public string id { get; set; } =string.Empty;
+        public string id { get; set; }
         public Building building { get; set; }
         public int fllor { get; set; }
         public string floorTitle { get; set; } = string.Empty;//フロアタイトル
         public Media floorMap { get; set; }//マップのデータ
-        public List<Group> groups { get; set; } = new List<Group>();//団体一覧
+        public List<Company> groups { get; set; } = new List<Company>();//団体一覧
         /// <summary>
         /// Jsonの内容をこの変数に代入します。
         /// </summary>
@@ -177,7 +188,7 @@ namespace Bloom.Shared
             this.floorMap = data.map;
             this.id  = data.id;
             //リスト化されたオブジェクトの順応
-            foreach (var item in data.groups)
+            foreach (var item in data.companys)
             {
                 if(item.Key == item.Value.id)
                 {
@@ -204,13 +215,14 @@ namespace Bloom.Shared
         public async Task<string> ConvertToJson(JsonSerializerOptions options = null)
         {
             Json toJson = new Json();
+            toJson.id = this.id;
             toJson.floorTitle = this.floorTitle;
             toJson.map = this.floorMap;
             foreach (var item in this.groups)
             {
-                toJson.groups.Add(item.id, item);
+                toJson.companys.Add(item.id, item);
             }
-            return JsonSerializer.Serialize(toJson, typeof(Bloom.Shared.Group), options);
+            return JsonSerializer.Serialize(toJson, typeof(Bloom.Shared.Company), options);
         }
         private class Json
         {
@@ -220,7 +232,7 @@ namespace Bloom.Shared
             /// </summary>
             [JsonPropertyName("floorTitle")] public string floorTitle { get; set; }
             [JsonPropertyName("map")] public Media map { get; set; }
-            [JsonPropertyName("groups")] public Dictionary<string,Group> groups { get; set; }
+            [JsonPropertyName("groups")] public Dictionary<string, Company> companys { get; set; }
         }
     }
     /// <summary>
@@ -240,7 +252,7 @@ namespace Bloom.Shared
     public class Event
     {
         public string id { get; set; } = string.Empty;
-        public string title3 { get; set; } = string.Empty;
+        public string title { get; set; } = string.Empty;
         public string url { get; set; } = string.Empty;
         public Media sumbnaill { get; set; } = new Media();
         public EventType type { set; get; } = EventType.Record;

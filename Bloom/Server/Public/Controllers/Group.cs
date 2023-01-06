@@ -10,32 +10,21 @@ using System.Xml.Serialization;
 using System.IO;
 using Bloom.Server.Utility;
 using Bloom.Server.Utility.Format;
+using Bloom.Server.Filer.Handler;
 
 namespace Bloom.Server.Hubs
 {
-    public class Company : Hub
+    public class CompanyHub : Hub
     {
-        public async Task ClaimGroup(string id)
+        public async Task<Company> ClaimCompany(string id)
         {
+            var result = new Company();
 #if DEBUG
             await RetrieveGroupDev();
 #endif
 #if !DEBUG
-            await RetrieveGroup(id);
+            result = await CompanyHandler.RetrieveGroup(id);
 #endif
-        }
-        public async static Task<Group> RetrieveGroup(string id)
-        {
-            var result = new Group();
-            using (var sr = new FileStream(DirectoryManeger.GetAbsotoblePath("/data/groups/" + id + ".json"), FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-            {
-                var org = await JsonSerializer.DeserializeAsync<GroupExpression>(sr);
-                if(org != null)
-                {
-                    result = await org.ConvertToGroup(false);
-                }
-            }
-            return result;
         }
         public async static Task<Group> RetrieveGroupShoten(string id)
         {
