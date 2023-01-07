@@ -23,7 +23,35 @@ namespace Bloom.Server.Utility.Format
         public int froor { get; set; }
         public string floorTitle { get; set; } = string.Empty;//フロアタイトル
         public string floorMap { get; set; }//マップのデータ
-        public List<string> groups { get; set; } = new();//団体一覧
+        public List<string> companys { get; set; } = new();//団体一覧
+        public async Task<Floor> ConvertToFloor(bool convert = false)
+        {
+            var task = new List<Task<Company>>();
+            foreach (var company in this.companys)
+            {
+                task.Add(CompanyHandler.RetrieveGroup(company, convert));
+            }
+            var floor = new Floor();
+            floor.id =this.id;
+            floor.building = this.building;
+            floor.fllor = this.froor;
+            floor.floorTitle = this.floorTitle;
+            floor.floorMap = await MediaHandler.RetriveMedia(this.floorMap);
+            floor.companys = await Task.WhenAll(task);
+            return floor;
+        }
+        public void ConvertFromFloor(in Floor floor)
+        {
+            this.id = floor.id;
+            this.building = floor.building;
+            this.froor = floor.fllor;
+            this.floorTitle = floor.floorTitle;
+            this.floorMap = floor.floorMap.id;
+            foreach (var item in floor.companys)
+            {
+                this.companys.Add(item.id);
+            }
+        }
     }
     public class GreadExpression
     {

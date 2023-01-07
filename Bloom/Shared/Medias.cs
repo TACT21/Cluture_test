@@ -170,7 +170,7 @@ namespace Bloom.Shared
         public int fllor { get; set; }
         public string floorTitle { get; set; } = string.Empty;//フロアタイトル
         public Media floorMap { get; set; }//マップのデータ
-        public List<Company> groups { get; set; } = new List<Company>();//団体一覧
+        public Company[] companys { get; set; } = new Company[0];//団体一覧
         /// <summary>
         /// Jsonの内容をこの変数に代入します。
         /// </summary>

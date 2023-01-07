@@ -176,34 +176,30 @@
             nV.NavigateTo($"/Map", false);  
         }
         StateHasChanged(); 
-        hubConnection = new HubConnectionBuilder().WithUrl(nV.ToAbsoluteUri("/grouphub")).Build();
-        hubConnection.On<string>("ReceiveCompany", (message) =>
+        hubConnection = new HubConnectionBuilder().WithUrl(nV.ToAbsoluteUri("/companyhub")).Build();
+        hubConnection.On<string>("ReceiveCompany", async (message) =>
         {
             Console.WriteLine("Receive");
-            var a = Encoding.UTF8.GetBytes(message);
-            using (var stream = new MemoryStream(a, false))
+            var f = new Company();
+            await f.ConvertFromJson(message);
+            if (f == null)
             {
-                XmlSerializer xs = new XmlSerializer(typeof(Group));
-                Group? f = (Group?)xs.Deserialize(stream);
-                if (f == null)
-                {
-                    Console.WriteLine("Result is null");
-                    state = 3;
-                    detail = null;
-                }
-                else
-                {
-                    if (f.posterUrl.Count > 1)
-                    {
-                        poster = f.posterUrl[0];
-                    }
-                    state = 2;
-                    detail = f;
-                    style = string.Empty;
-                }
-                Console.WriteLine("Resultchenge");
-                StateHasChanged();
+                Console.WriteLine("Result is null");
+                state = 3;
+                detail = null;
             }
+            else
+            {
+                if (f.posterUrl.Count > 1)
+                {
+                    poster = f.posterUrl[0];
+                }
+                state = 2;
+                detail = f;
+                style = string.Empty;
+            }
+            Console.WriteLine("Resultchenge");
+            StateHasChanged();
         });
         await hubConnection.StartAsync();
         Console.WriteLine("Claim");

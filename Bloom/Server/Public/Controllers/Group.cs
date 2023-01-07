@@ -25,37 +25,23 @@ namespace Bloom.Server.Hubs
 #if !DEBUG
             result = await CompanyHandler.RetrieveGroup(id);
 #endif
-        }
-        public async static Task<Group> RetrieveGroupShoten(string id)
-        {
-            var result = new Group();
-            using (var sr = new FileStream(DirectoryManeger.GetAbsotoblePath("/data/group/" + id), FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-            {
-                var org = await JsonSerializer.DeserializeAsync<GroupExpression>(sr);
-                if (org != null)
-                {
-                    var task = org.ConvertToGroup(true);
-                    Media? poster = new();
-                    foreach (var url in org.posterUrl)
-                    {
-                        using (var psr = new FileStream(url, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-                        {
-                            poster = await JsonSerializer.DeserializeAsync<Media>(psr);
-                        }
-                        if (poster != null)
-                        {
-                            break;
-                        }
-                    }
-                    result = await task;
-                    result.posterUrl.Add(poster);
-                }
-            }
             return result;
         }
-        private async Task<Group> RetrieveGroupDev()
+        public async static Task<Company> RetrieveGroupShoten(string id)
         {
-            var result = new Group ();
+            var result = new Company();
+            var company = await CompanyHandler.RetrieveGroup(id);
+            result = company;
+            result.videoUrl = null;
+            result.contentUrl = null;
+            result.cmUrl = null;
+            result.enname = null;
+            result.location = null;
+            return result;
+        }
+        private async Task<Company> RetrieveGroupDev()
+        {
+            var result = new Company ();
             result.name = "団体名";
             result.enname = "Company name";
             result.comment = "Here is coment";

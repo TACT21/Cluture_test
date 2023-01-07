@@ -12,17 +12,17 @@ using System.Threading.Tasks;
 
 namespace Bloom.Server.Filer.Handler
 {
-    internal class FloorHandler
+    public class FloorHandler
     {
-        public static async Task BullyGread(Floor floor)
+        public static async Task BullyFloor(Floor floor)
         {
-            var gex = new GreadExpression();
+            var gex = new FloorExpression();
             gex.ConvertFromFloor(floor);
-            await BullyGread(gex);
+            await BullyFloor(gex);
         }
-        public static async Task BullyGread(GreadExpression gex)
+        public static async Task BullyFloor(FloorExpression gex)
         {
-            var file = new OptimismFileHelper<GreadExpression>();
+            var file = new OptimismFileHelper<FloorExpression>();
             try
             {
                 await file.OpenAsync(DirectoryManeger.GetAbsotoblePath("/data/floors/" + gex.id + ".json"));
@@ -33,37 +33,37 @@ namespace Bloom.Server.Filer.Handler
                 throw;
             }
         }
-        public static async Task ReplaceGread(Floor floor, int index, bool overWrite = false)
+        public static async Task ReplaceFloor(Floor floor, int index, bool overWrite = false)
         {
-            var gex = new GreadExpression();
+            var gex = new FloorExpression();
             gex.ConvertFromFloor(floor);
-            await ReplaceGread(gex, index, overWrite);
+            await ReplaceFloor(gex, index, overWrite);
         }
-        public async static Task ReplaceGread(GreadExpression gex, int index, bool overWrite = false)
+        public async static Task ReplaceFloor(FloorExpression gex, int index, bool overWrite = false)
         {
             if (File.Exists(DirectoryManeger.GetAbsotoblePath("/data/floors/" + gex.id + ".json")))
             {
                 throw new ArgumentException();
             }
-            var file = new OptimismFileHelper<GreadExpression>();
+            var file = new OptimismFileHelper<FloorExpression>();
             try
             {
                 await file.OpenAsync(DirectoryManeger.GetAbsotoblePath("/data/floors/" + gex.id + ".json"));
-                await ReplaceGread(gex, index, overWrite);
+                await ReplaceFloor(gex, index, overWrite);
             }
             catch
             {
                 throw;
             }
         }
-        public static async Task<List<DataExpression<GreadExpression>>> RetriveGreadExDev(string id)
+        public static async Task<List<DataExpression<FloorExpression>>> RetriveFloorExDev(string id)
         {
-            List<DataExpression<GreadExpression>> result = new List<DataExpression<GreadExpression>>();
-            result.Add(new DataExpression<GreadExpression>()
+            List<DataExpression<FloorExpression>> result = new List<DataExpression<FloorExpression>>();
+            result.Add(new DataExpression<FloorExpression>()
             {
-                data = new GreadExpression() { id = "NULL" }
+                data = new FloorExpression() { id = "NULL" }
             });
-            var file = new OptimismFileHelper<GreadExpression>();
+            var file = new OptimismFileHelper<FloorExpression>();
             try
             {
                 await file.OpenAsync(DirectoryManeger.GetAbsotoblePath("/data/floors/" + id + ".json"));
@@ -75,30 +75,31 @@ namespace Bloom.Server.Filer.Handler
             result = file.values;
             return result;
         }
-        public static async Task<List<DataExpression<Floor>>> RetriveGreadDev(string id, bool convert = false)
+        public static async Task<List<DataExpression<Floor>>> RetriveFloorDev(string id, bool convert = false)
         {
             List<DataExpression<Floor>> result = new List<DataExpression<Floor>>();
             result.Add(new DataExpression<Floor>()
             {
                 data = new Floor() { floorTitle = "NULL" }
             });
-            var file = new OptimismFileHelper<GreadExpression>();
+            var file = new OptimismFileHelper<FloorExpression>();
             try
             {
-                var a = await RetriveGreadExDev(id);
+                var a = await RetriveFloorExDev(id);
                 foreach (var item in a)
                 {
                     var floor = new Floor();
                     if (item.data != null)
                     {
-                        floor.fllor = item.data.gread;
-                        floor.floorTitle = item.data.name;
+                        floor.fllor = item.data.froor;
+                        floor.floorTitle = item.data.floorTitle;
                         var task = new List<Task<Company>>();
-                        foreach (var group in item.data.groups)
+                        foreach (var group in item.data.companys)
                         {
                             task.Add(CompanyHandler.RetrieveGroup(group, convert));
                         }
-                        floor.groups.AddRange(await Task.WhenAll(task));
+                        var re = await Task.WhenAll(task);
+                        floor.companys = re.ToArray();
                     }
                 }
             }
@@ -108,19 +109,19 @@ namespace Bloom.Server.Filer.Handler
             }
             return result;
         }
-        public static async Task<Floor> RetriveGread(string id, bool convert = false)
+        public static async Task<Floor> RetriveFloor(string id, bool convert = false)
         {
             Floor result = new Floor() { id = "hoge" };
-            var gread = new List<DataExpression<Floor>>();
+            var Floor = new List<DataExpression<Floor>>();
             try
             {
-                gread = await RetriveGreadDev(id, convert);
+                Floor = await RetriveFloorDev(id, convert);
             }
             catch
             {
                 throw;
             }
-            foreach (var item in gread)
+            foreach (var item in Floor)
             {
                 if (item.recent && item.data != null)
                 {
@@ -134,7 +135,7 @@ namespace Bloom.Server.Filer.Handler
             }
             return result;
         }
-        public static async Task<List<Floor>> RetriveGreadList(bool convert = false)
+        public static async Task<List<Floor>> RetriveFloorList(bool convert = false)
         {
             List<Floor> result = new List<Floor>();
             var files = Directory.GetFiles(DirectoryManeger.GetAbsotoblePath("/data/floors/"));
@@ -145,13 +146,39 @@ namespace Bloom.Server.Filer.Handler
                     var id = DirectoryManeger.ConvertPath2Id(item);
                     try
                     {
-                        result.Add(await RetriveGread(id, convert));
+                        result.Add(await RetriveFloor(id, convert));
                     }
                     catch
                     {
                         throw;
                     }
                 }
+            }
+            return result;
+        }
+        public static async Task<List<BuildingExpression>> RetriveBuildingExpression()
+        {
+            List<BuildingExpression> result = new List<BuildingExpression>(0);
+            var file = new OptimismFileHelper<List<BuildingExpression>>();
+            try
+            {
+                await file.OpenAsync(DirectoryManeger.GetAbsotoblePath("/floor_indexer.json\r\n"));
+            }
+            catch
+            {
+                throw;
+            }
+            foreach (var item in file.values)
+            {
+                if (item.recent && item.data != null)
+                {
+                    result = item.data;
+                    break;
+                }
+            }
+            if(result.Count == 0)
+            {
+                throw new EntryPointNotFoundException();
             }
             return result;
         }

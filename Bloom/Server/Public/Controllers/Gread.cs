@@ -29,7 +29,15 @@ namespace Bloom.Server.Hubs
 #if !DEBUG
             try
             {
-                result = await GreadHandler.RetriveGread(gread);
+                var greads = await GreadHandler.RetriveGreadList();
+                foreach (var item in greads)
+                {
+                    if(item.fllor == gread)
+                    {
+                        result = item;
+                        break;
+                    }
+                }
             }
             catch (Exception ex)
             {
@@ -37,7 +45,6 @@ namespace Bloom.Server.Hubs
                 Console.WriteLine("Warning! " + ex.Message + " *Log is at" + path);
                 File.WriteAllText(path, ex.ToString());
             }
-
 #endif
             try
             {
@@ -52,23 +59,20 @@ namespace Bloom.Server.Hubs
 
             return result;
         }
-        public async Task<Dictionary<int,string>> ClaimGreads()
+
+        public async Task<Floor[]> ClaimGreads()
         {
-            var result = new Dictionary<int, string>();
+            var result = new List<Floor>();
 #if DEBUG
-            result.add(0,"Dev")
+            result.Add(0, "Dev");
 #endif
 #if !DEBUG
             try
             {
-                var greads = new GreadExpression[0];
-                using (var sr = new FileStream(DirectoryManeger.GetAbsotoblePath("/gread_indexer.json"), FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-                {
-                    greads = await JsonSerializer.DeserializeAsync<GreadExpression[]>(sr);
-                }
+                var greads = await GreadHandler.RetriveGreadList();
                 foreach (var item in greads)
                 {
-                    result.Add(item.gread, item.name);
+                    result.Add(item);
                 }
             }
             catch (Exception ex)
@@ -77,7 +81,6 @@ namespace Bloom.Server.Hubs
                 Console.WriteLine("Warning! " + ex.Message + " *Log is at" + path);
                 File.WriteAllText(path, ex.ToString());
             }
-
 #endif
             try
             {
@@ -90,7 +93,7 @@ namespace Bloom.Server.Hubs
                 File.WriteAllText(path, ex.ToString(), Encoding.UTF8);
             }
 
-            return result;
+            return result.ToArray();
         }
     }
 }

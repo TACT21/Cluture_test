@@ -137,13 +137,13 @@ namespace Bloom.Server.Hubs
                     result.building = expression.building;
                     result.floorTitle = expression.floorTitle;
                     result.fllor = expression.froor;
-                    var tasks = new List<Task<Group>>();
+                    var tasks = new List<Task<Company>>();
                     foreach (var item in expression.groups)
                     {
-                        tasks.Add(Company.RetrieveGroupShoten(item));
+                        tasks.Add(CompanyHub.RetrieveGroupShoten(item));
                     }
-                    var list = await Task.WhenAll<Group>(tasks);
-                    result.groups = new List<Group>(list);
+                    var list = await Task.WhenAll<Company>(tasks);
+                    result.groups = new List<Company>(list);
                 }
             }
             catch
