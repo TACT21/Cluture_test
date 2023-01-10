@@ -1,8 +1,8 @@
-using Developer;
+using Bloom.Server.Dev.Org;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 
-namespace Developer
+namespace Bloom.Server.Dev.Org
 {
     public class Program
     {

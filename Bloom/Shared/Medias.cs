@@ -188,6 +188,7 @@ namespace Bloom.Shared
             this.floorMap = data.map;
             this.id  = data.id;
             //リスト化されたオブジェクトの順応
+            var groups = new List<Company>();
             foreach (var item in data.companys)
             {
                 if(item.Key == item.Value.id)
@@ -195,6 +196,7 @@ namespace Bloom.Shared
                     groups.Add(item.Value);
                 }
             }
+            companys = groups.ToArray();
         }
         /// <summary>
         /// Jsonの内容をこの変数に代入します。
@@ -218,7 +220,7 @@ namespace Bloom.Shared
             toJson.id = this.id;
             toJson.floorTitle = this.floorTitle;
             toJson.map = this.floorMap;
-            foreach (var item in this.groups)
+            foreach (var item in this.companys)
             {
                 toJson.companys.Add(item.id, item);
             }

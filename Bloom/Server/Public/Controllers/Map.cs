@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.SignalR;
 using System.IO;
 using Bloom.Server;
+using Bloom.Server.Filer.Handler;
 using Bloom.Server.Controllers;
 using System.Text;
 using Bloom.Shared;
@@ -19,16 +20,21 @@ namespace Bloom.Server.Hubs
         /// <summary>
         /// フロアID 取得関数
         /// </summary>
-        public async Task<Floor> ClaimFloorID(Building building,int floor)
+        public async Task<string> ClaimFloorID(Building building,int floor)
         {
-            var result = new Floor();
-#if DEBUG
-            result = await RetrieveFloorIDDev();
-#endif
+            var result = "Dev";
 #if !DEBUG
             try
             {
-                result = await RetrieveFloorID(building,floor);
+                var floors = await FloorHandler.RetriveFloorList();
+                foreach (var item in floors)
+                {
+                    if(item.building == building && item.fllor == floor)
+                    {
+                        result = item.id; 
+                        break;
+                    }
+                }
             }
             catch(Exception ex)
             {
@@ -36,11 +42,10 @@ namespace Bloom.Server.Hubs
                 Console.WriteLine("Warning! " + ex.Message + " *Log is at"+path);
                 File.WriteAllText(path, ex.ToString());
             }
-                    
 #endif
             try
             {
-                await Clients.Caller.SendAsync("ReceiveFloorID", await result.ConvertToJson());
+                await Clients.Caller.SendAsync("ReceiveFloorID", result);
             }
             catch(Exception ex)
             {
@@ -51,39 +56,7 @@ namespace Bloom.Server.Hubs
 
             return result;
         }
-        public async Task<Floor> RetrieveFloorIDDev()
-        {
-            var result = new Floor();
-            result.id = "0";
-            return result;
-        }
-        public async Task<Floor> RetrieveFloorID(Building building, int floor)
-        {
-            var result = await RetrieveFloorIDDev();
-            try
-            {
-                var indexer = await Filer.GetFileText(DirectoryManeger.GetAbsotoblePath(await GetFroor(building,floor)));
-                var path = "/tmp/"+ Guid.NewGuid().ToString()+".txt";
-                //Close時に削除する一時ファイルを作成
-                using (FileStream sr = File.Create(
-                    DirectoryManeger.GetAbsotoblePath(path),
-                    Encoding.UTF8.GetBytes(indexer).Length,
-                    FileOptions.DeleteOnClose))
-                {
-                    await sr.WriteAsync(Encoding.UTF8.GetBytes(indexer));
-                    Floor? fl = await JsonSerializer.DeserializeAsync<Floor>(sr);
-                    if(fl != null)
-                    {
-                        result.id = fl.id;
-                    }
-                } 
-            }
-            catch
-            {
-                throw;
-            }
-            return result;
-        }
+        
         /// <summary>
         /// フロア本体取得関数
         /// </summary>
@@ -96,7 +69,15 @@ namespace Bloom.Server.Hubs
 #if !DEBUG
             try
             {
-                result = await RetrieveFloor(building,floor);
+                var floors = await FloorHandler.RetriveFloorList();
+                foreach (var item in floors)
+                {
+                    if (item.building == building && item.fllor == floor)
+                    {
+                        result = item;
+                        break;
+                    }
+                }
             }
             catch(Exception ex)
             {
@@ -118,76 +99,7 @@ namespace Bloom.Server.Hubs
             }
 
             return result;
-        }
-        public async Task<Floor> RetrieveFloor(Building building, int floor)
-        {
-            var result = new Floor();
-            result.id = "0";
-            try
-            {
-                var indexer = await GetFroor(building,floor);
-                FloorExpression? expression = new();
-                using (var  sr = new FileStream(indexer, FileMode.Open,FileAccess.Read,FileShare.ReadWrite))
-                {
-                    expression = await JsonSerializer.DeserializeAsync<FloorExpression>(sr);  
-                }
-                if (expression != null)
-                {
-                    result.id = expression.id;
-                    result.building = expression.building;
-                    result.floorTitle = expression.floorTitle;
-                    result.fllor = expression.froor;
-                    var tasks = new List<Task<Company>>();
-                    foreach (var item in expression.groups)
-                    {
-                        tasks.Add(CompanyHub.RetrieveGroupShoten(item));
-                    }
-                    var list = await Task.WhenAll<Company>(tasks);
-                    result.groups = new List<Company>(list);
-                }
-            }
-            catch
-            {
-                throw;
-            }
-            return result;
-        }
-        /// <summary>
-        /// フロアの定義ファイル取得関数
-        /// </summary>
-        public async Task<string> GetFroor(Building building, int floor)
-        {
-            var result = "";
-            try
-            {
-                var indexer = await Filer.GetFileText("/data/FloorIndexer.json");
-                var path = "/tmp/" + Guid.NewGuid().ToString() + ".txt";
-                await File.WriteAllTextAsync(DirectoryManeger.GetAbsotoblePath(path), indexer);//検索結果をいったんファイルに
-                //Close時に削除する一時ファイルを作成
-                using (FileStream sr = File.Create(
-                    DirectoryManeger.GetAbsotoblePath(path),
-                    Encoding.UTF8.GetBytes(indexer).Length,
-                    FileOptions.DeleteOnClose))
-                {
-                    BuildingExpression?[] dic = await JsonSerializer.DeserializeAsync<BuildingExpression[]>(sr);
-                    if (dic != null || dic.Length != 0)
-                    {
-                        foreach (var item in dic)
-                        {
-                            if (item.building == building)
-                            {
-                                result = item.paths[floor];
-                            }
-                        }
-                    }
-                }
-            }
-            catch
-            {
-                throw;
-            }
-            return result;
-        }
+        }        
         public async Task<Dictionary<Building, string[]>> ClaimBuildings()
         {
             var result = new Dictionary<Building, string[]>();
