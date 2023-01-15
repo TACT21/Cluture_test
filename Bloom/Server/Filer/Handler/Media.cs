@@ -19,14 +19,14 @@ namespace Bloom.Server.Filer.Handler
         public static async Task<string> BullyMedia(MediaCarryer media,string name = "" ,string coment = "")
         {
             var extinction = Path.GetExtension(media.extinction);
-            var madianame = new Guid().ToString();
+            var madianame = new Guid().ToString("N");
             using (var sr = new FileStream(DirectoryManeger.GetWebStoragePath("/media/" + madianame + extinction), FileMode.Create, FileAccess.ReadWrite, FileShare.None))
             {
                 await sr.WriteAsync(media.content, 0, media.content.Length);
             }
             if(name == "")
             {
-                name = new Guid().ToString();
+                name = new Guid().ToString("N");
             }
             var list = new List<MediaExpression>();
             if (File.Exists(DirectoryManeger.GetAbsotoblePath("/data/media/" + name +".json")))

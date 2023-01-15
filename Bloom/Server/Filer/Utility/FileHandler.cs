@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Bloom.Server.Utility;
+using System.Collections;
 
 namespace Bloom.Server.Filer.Utility
 {
@@ -25,9 +26,9 @@ namespace Bloom.Server.Filer.Utility
             {
                 path = dataBasePath;
             }
-            if(index > values.Count)
+            if (index > values.Count)
             {
-                while(values.Count <= index)
+                while (values.Count <= index)
                 {
                     values.Add(new DataExpression<T>());
                 }
@@ -44,42 +45,7 @@ namespace Bloom.Server.Filer.Utility
                 }
                 if (chenged)
                 {
-                    var properties = typeof(DataExpression<T>).GetProperties();
-                    foreach (var property in properties)
-                    {
-                        //ファイルの内容と更新内容の変化があった場合
-                        if (property.GetValue(item) != property.GetValue(file.values[index]))
-                        {
-                            //ファイル内の内容と更新前内容に変化があった場合と、上書き保存を禁止された場合
-                            if (!overWrite || property.GetValue(this.values[index]) != property.GetValue(file.values[index]))
-                            {
-                                throw new InvalidOperationException();
-                            }
-                            //変更箇所ではなかった場合
-                            else if (property.GetValue(this.values[index]) != property.GetValue(item))
-                            {
-                                property.SetValue(item, property.GetValue(file.values[index]));
-                            }
-                        }
-                    }
-                    var fields = typeof(T).GetFields();
-                    foreach (var field in fields)
-                    {
-                        //ファイルの内容と更新内容の変化があった場合
-                        if (field.GetValue(item) != field.GetValue(file.values[index]))
-                        {
-                            //ファイル内の内容と更新前内容に変化があった場合と、上書き保存を禁止された場合
-                            if (!overWrite || field.GetValue(this.values[index]) != field.GetValue(file.values[index]))
-                            {
-                                throw new InvalidOperationException();
-                            }
-                            //変更箇所ではなかった場合
-                            else if (field.GetValue(this.values[index]) != field.GetValue(item))
-                            {
-                                field.SetValue(item, field.GetValue(file.values[index]));
-                            }
-                        }
-                    }
+
                 }
                 var edit = new FileExpression<T>();
                 edit.ver = (this.ver + 1).ToString("D10");
@@ -89,9 +55,9 @@ namespace Bloom.Server.Filer.Utility
                 }
                 Task task;
                 var tempName = DirectoryManeger.GetAbsotoblePath("/temp/" + new Guid().ToString());
-                using (var fs1 = new FileStream(tempName, FileMode.Open, FileAccess.ReadWrite, FileShare.None,4069,FileOptions.DeleteOnClose))
+                using (var fs1 = new FileStream(tempName, FileMode.Open, FileAccess.ReadWrite, FileShare.None, 4069, FileOptions.DeleteOnClose))
                 {
-                    await JsonSerializer.SerializeAsync(fs1,edit, options);
+                    await JsonSerializer.SerializeAsync(fs1, edit, options);
                     var text = File.ReadAllText(tempName);
                     fs.SetLength(0);
                     //書き込み対象物の最初の位置を取得
@@ -114,7 +80,7 @@ namespace Bloom.Server.Filer.Utility
                     fs.Seek(befor_bytes.Length - 1, SeekOrigin.Begin);
                     //書き込み対象物を取得
                     await task;
-                    var aim = Encoding.UTF8.GetBytes(File.ReadAllText(tempName).TrimEnd('}').TrimStart( '{'));
+                    var aim = Encoding.UTF8.GetBytes(File.ReadAllText(tempName).TrimEnd('}').TrimStart('{'));
                     //書き込み対象物と、その後ろのものを書き込み
                     fs.Write(aim, 0, aim.Length);
                     await fs.WriteAsync(after, 0, after.Length);
@@ -127,7 +93,7 @@ namespace Bloom.Server.Filer.Utility
         public async Task ChengeAsync(int index, T item, bool overWrite = false, string path = "")
         {
             var value = new DataExpression<T>() { data = item, recent = false };
-            await ChengeAsync(index, value, path, overWrite);
+            await ChengeAsync(index, value, overWrite, path);
         }
         public async Task OpenAsync(string path)
         {
@@ -135,7 +101,7 @@ namespace Bloom.Server.Filer.Utility
             using (var fs = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
             {
                 var file = await JsonSerializer.DeserializeAsync<FileExpression<T>>(fs);
-                if(file != null)
+                if (file != null)
                 {
                     throw new ArgumentNullException();
                 }
@@ -143,6 +109,5 @@ namespace Bloom.Server.Filer.Utility
                 this.values = file.values;
             }
         }
-
     }
 }

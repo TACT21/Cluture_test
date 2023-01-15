@@ -32,6 +32,49 @@ namespace Bloom.Server.Filer.Handler
             {
                 throw;
             }
+            file = null;
+            bool exist = false;
+            var indexer = new OptimismFileHelper<List<BuildingExpression>>();
+            try
+            {
+                await indexer.OpenAsync(DirectoryManeger.GetAbsotoblePath("/data/floor_indexer.json\r\n"));
+            }
+            catch
+            {
+                throw;
+            }
+            for (int i = 0; i < indexer.values.Count; i++)
+            {
+                if (indexer.values[i].data != null && indexer.values[i].recent)
+                {
+                    for (int n = 0; n < indexer.values[i].data.Count; n++)
+                    {
+                        if (indexer.values[i].data[n].building == gex.building)
+                        {
+                            exist = true;
+                            await indexer.ChengeAsync()
+                        }
+                    }
+                }
+            }
+            foreach (var item in indexer.values)
+            {
+                if (item.recent && item.data != null)
+                {
+                    foreach (var building in item.data)
+                    {
+                        if(building.building == gex.building)
+                        {
+                            exist = true;
+                            
+                        }
+                    }
+                }
+            }
+            if (exist)
+            {
+                throw new EntryPointNotFoundException();
+            }
         }
         public static async Task ReplaceFloor(Floor floor, int index, bool overWrite = false)
         {
@@ -162,7 +205,7 @@ namespace Bloom.Server.Filer.Handler
             var file = new OptimismFileHelper<List<BuildingExpression>>();
             try
             {
-                await file.OpenAsync(DirectoryManeger.GetAbsotoblePath("/floor_indexer.json\r\n"));
+                await file.OpenAsync(DirectoryManeger.GetAbsotoblePath("/data/floor_indexer.json\r\n"));
             }
             catch
             {
