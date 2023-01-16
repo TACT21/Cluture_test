@@ -1,0 +1,9 @@
+Add Microsoft Authemttication from https://learn.microsoft.com/en-us/aspnet/core/security/authentication/social/microsoft-logins?view=aspnetcore-6.0
+===comands===
+dotnet user-secrets set "Authentication:Microsoft:ClientId" "<client-id>"
+dotnet user-secrets set "Authentication:Microsoft:ClientSecret" "<client-secret>"
+===End===
+Add Microsoft Authemttication from https://learn.microsoft.com/en-us/aspnet/core/security/authentication/social/google-logins?view=aspnetcore-6.0
+===comands===
+dotnet user-secrets set "Authentication:Microsoft:ClientId" "<client-id>"
+dotnet user-secrets set "Authentication:Microsoft:ClientSecret" "<client-secret>"

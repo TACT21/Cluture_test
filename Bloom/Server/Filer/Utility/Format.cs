@@ -8,7 +8,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace Bloom.Server.Utility.Format
-{
+{   
 
     public class BuildingExpression
     {
@@ -68,15 +68,17 @@ namespace Bloom.Server.Utility.Format
             var task = new List<Task<Company>>();
             foreach (var group in this.groups)
             {
-                floor.groups.Add(await CompanyHandler.RetrieveGroup(group, convert));
+                task.Add(CompanyHandler.RetrieveGroup(group, convert));
             }
+            var a = await Task.WhenAll(task);
+            floor.companys = a.ToArray();
             return floor;
         }
         public void ConvertFromFloor(in Floor floor)
         {
             this.id = floor.id;
             this.name = floor.floorTitle;
-            foreach (var item in floor.groups)
+            foreach (var item in floor.companys)
             {
                 this.groups.Add(item.id);
             }

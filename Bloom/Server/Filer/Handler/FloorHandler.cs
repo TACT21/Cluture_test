@@ -225,5 +225,33 @@ namespace Bloom.Server.Filer.Handler
             }
             return result;
         }
+        public static async Task<List<BuildingExpression>> ReplaceFloor(List<BuildingExpression> buildings)
+        {
+            List<BuildingExpression> result = new List<BuildingExpression>(0);
+            DataExpression<List<BuildingExpression>> data = new DataExpression<List<BuildingExpression>>() { data = buildings};
+            var file = new OptimismFileHelper<List<BuildingExpression>>();
+            try
+            {
+                await file.OpenAsync(DirectoryManeger.GetAbsotoblePath("/floor_indexer.json\r\n"));
+                await file.ChengeAsync(file.values.Count + 1, data,true);
+            }
+            catch
+            {
+                throw;
+            }
+            foreach (var item in file.values)
+            {
+                if (item.recent && item.data != null)
+                {
+                    result = item.data;
+                    break;
+                }
+            }
+            if (result.Count == 0)
+            {
+                throw new EntryPointNotFoundException();
+            }
+            return result;
+        }
     }
 }

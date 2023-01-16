@@ -50,7 +50,7 @@
             <section class="floors">
                 <h1>@flooritems.floorTitle</h1>
                 <div  class="mapTile">
-                    @foreach (var company in flooritems.groups)
+                    @foreach (var company in flooritems.companys)
                     {
                         //横長ポスターの場合
                         @if (company.posterUrl[0].isWide)
