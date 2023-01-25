@@ -34,11 +34,11 @@ namespace Bloom.Server.Filer.Handler
                 var indexer = new OptimismFileHelper<BuildingExpression>();
                 await indexer.OpenAsync(DirectoryManeger.GetAbsotoblePath("/data/floor_indexer.json"));
                 bool exist = false;
-                var newData = new DataExpression<BuildingExpression>();
                 for (int i = 0; i < indexer.values.Count; i++)
                 {
                     if (indexer.values[i] != null && indexer.values[i].data.building == gex.building)
                     {
+                        var newData = new DataExpression<BuildingExpression>();
                         newData = indexer.values[i];
                         exist = true;
                         newData.data.paths.Add(gex.froor, path);
@@ -48,13 +48,19 @@ namespace Bloom.Server.Filer.Handler
                 }
                 if(!exist)
                 {
-
+                    var newData = new DataExpression<BuildingExpression>();
+                    exist = true;
+                    newData.recent = true;
+                    newData.data.building = gex.building;
+                    newData.data.paths.Add(gex.froor, path);
+                    tasks.Add(indexer.ChengeAsync(indexer.values.Count, newData, true));
                 }
             }
             catch
             {
                 throw;
             }
+            return id;
         }
         public static async Task ReplaceFloor(Floor floor,  bool overWrite = false)
         {

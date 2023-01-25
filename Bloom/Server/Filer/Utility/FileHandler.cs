@@ -54,7 +54,7 @@ namespace Bloom.Server.Filer.Utility
                     edit.values.Add(file.values[i]);
                 }
                 Task task;
-                var tempName = DirectoryManeger.GetAbsotoblePath("/temp/" + new Guid.NewGuid().ToString("N"););
+                var tempName = DirectoryManeger.GetAbsotoblePath("/temp/" + Guid.NewGuid().ToString("N"););
                 using (var fs1 = new FileStream(tempName, FileMode.Open, FileAccess.ReadWrite, FileShare.None, 4069, FileOptions.DeleteOnClose))
                 {
                     await JsonSerializer.SerializeAsync(fs1, edit, options);

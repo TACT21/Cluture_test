@@ -34,7 +34,7 @@ namespace Bloom.Server.Controllers
 #endif
             try
             {
-                var path = "/tmp/" + Guid.NewGuid.NewGuid().ToString("N"); + ".txt";
+                var path = "/tmp/" + Guid.NewGuid().ToString("N") + ".txt";
                 //Close時に削除する一時ファイルを作成
                 using (FileStream fs = File.Create(DirectoryManeger.GetAbsotoblePath(path)))
                 {
