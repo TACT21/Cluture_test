@@ -111,7 +111,7 @@ namespace Bloom.Server.Hubs
             try
             {
                 var indexer = await Filer.GetFileText("/data/FloorIndexer.json");
-                var path = "/tmp/" + Guid.NewGuid().ToString() + ".txt";
+                var path = "/tmp/" + Guid.NewGuid.NewGuid().ToString("N"); + ".txt";
                 await File.WriteAllTextAsync(DirectoryManeger.GetAbsotoblePath(path), indexer);//検索結果をいったんファイルに
                 //Close時に削除する一時ファイルを作成
                 using (FileStream sr = File.Create(
@@ -139,7 +139,7 @@ namespace Bloom.Server.Hubs
 #endif
             try
             {
-                var path = "/tmp/" + Guid.NewGuid().ToString() + ".txt";
+                var path = "/tmp/" + Guid.NewGuid.NewGuid().ToString("N"); + ".txt";
                 //Close時に削除する一時ファイルを作成
                 using (FileStream fs = File.Create(DirectoryManeger.GetAbsotoblePath(path)))
                 {

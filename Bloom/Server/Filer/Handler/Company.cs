@@ -52,7 +52,7 @@ namespace Bloom.Server.Filer.Handler
         }
         public async static Task<string> BuryGroup(Company group)
         {
-            var id = new Guid().ToString("N");
+            var id = new Guid.NewGuid().ToString("N");;
             await WriteGroup(id, group);
             return id;
         }

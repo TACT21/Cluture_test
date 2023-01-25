@@ -116,7 +116,7 @@ namespace Bloom.Server.Filer.Handler
         }
         public async static Task BuryEvent(Event group,bool overWrite = false)
         {
-            group.id = new Guid().ToString("N");
+            group.id = new Guid.NewGuid().ToString("N");;
             var options = new JsonSerializerOptions { WriteIndented = true };
             var errorContent = "";
             var file = new OptimismFileHelper<Event>();

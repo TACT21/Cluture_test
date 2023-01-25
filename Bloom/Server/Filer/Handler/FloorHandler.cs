@@ -14,30 +14,61 @@ namespace Bloom.Server.Filer.Handler
 {
     public class FloorHandler
     {
-        public static async Task BullyFloor(Floor floor)
+        public static async Task<string> BullyFloor(Floor floor)
         {
             var gex = new FloorExpression();
             gex.ConvertFromFloor(floor);
-            await BullyFloor(gex);
+            return await BullyFloor(gex);
         }
-        public static async Task BullyFloor(FloorExpression gex)
+        public static async Task<string> BullyFloor(FloorExpression gex)
         {
-            var file = new OptimismFileHelper<FloorExpression>();
+            var id = Guid.NewGuid().ToString("N");
+            var path = DirectoryManeger.GetAbsotoblePath("/data/floors" + id + ".json");
+            File.Create(path).Dispose();
             try
             {
-                await file.OpenAsync(DirectoryManeger.GetAbsotoblePath("/data/floors/" + gex.id + ".json"));
-                await file.ChengeAsync(file.values.Count, gex);
+                var tasks = new List<Task>();
+                var floor = new OptimismFileHelper<FloorExpression>();
+                await floor.OpenAsync(path);
+                tasks.Add(floor.ChengeAsync(floor.values.Count, gex, true));
+                var indexer = new OptimismFileHelper<BuildingExpression>();
+                await indexer.OpenAsync(DirectoryManeger.GetAbsotoblePath("/data/floor_indexer.json"));
+                bool exist = false;
+                var newData = new DataExpression<BuildingExpression>();
+                for (int i = 0; i < indexer.values.Count; i++)
+                {
+                    if (indexer.values[i] != null && indexer.values[i].data.building == gex.building)
+                    {
+                        newData = indexer.values[i];
+                        exist = true;
+                        newData.data.paths.Add(gex.froor, path);
+                        tasks.Add(indexer.ChengeAsync(i, newData, true));
+                        break;
+                    }
+                }
+                if(!exist)
+                {
+
+                }
             }
             catch
             {
                 throw;
             }
-            file = null;
+        }
+        public static async Task ReplaceFloor(Floor floor,  bool overWrite = false)
+        {
+            var gex = new FloorExpression();
+            gex.ConvertFromFloor(floor);
+            await ReplaceFloor(gex,  overWrite);
+        }
+        public async static Task ReplaceFloor(FloorExpression gex, bool overWrite = false)
+        {
             bool exist = false;
-            var indexer = new OptimismFileHelper<List<BuildingExpression>>();
+            var indexer = new OptimismFileHelper<BuildingExpression>();
             try
             {
-                await indexer.OpenAsync(DirectoryManeger.GetAbsotoblePath("/data/floor_indexer.json\r\n"));
+                await indexer.OpenAsync(DirectoryManeger.GetAbsotoblePath("/data/floor_indexer.json"));
             }
             catch
             {
@@ -45,58 +76,24 @@ namespace Bloom.Server.Filer.Handler
             }
             for (int i = 0; i < indexer.values.Count; i++)
             {
-                if (indexer.values[i].data != null && indexer.values[i].recent)
+                if (indexer.values[i].data != null && indexer.values[i].data.building == gex.building)
                 {
-                    for (int n = 0; n < indexer.values[i].data.Count; n++)
+                    try
                     {
-                        if (indexer.values[i].data[n].building == gex.building)
-                        {
-                            exist = true;
-                            await indexer.ChengeAsync()
-                        }
+                        var floor = new OptimismFileHelper<FloorExpression>();
+                        await floor.OpenAsync(indexer.values[i].data.paths[gex.froor]);
+                        await floor.ChengeAsync(floor.values.Count, gex, true);
                     }
+                    catch
+                    {
+                        throw;
+                    }
+                    exist = true;
                 }
             }
-            foreach (var item in indexer.values)
-            {
-                if (item.recent && item.data != null)
-                {
-                    foreach (var building in item.data)
-                    {
-                        if(building.building == gex.building)
-                        {
-                            exist = true;
-                            
-                        }
-                    }
-                }
-            }
-            if (exist)
+            if (!exist)
             {
                 throw new EntryPointNotFoundException();
-            }
-        }
-        public static async Task ReplaceFloor(Floor floor, int index, bool overWrite = false)
-        {
-            var gex = new FloorExpression();
-            gex.ConvertFromFloor(floor);
-            await ReplaceFloor(gex, index, overWrite);
-        }
-        public async static Task ReplaceFloor(FloorExpression gex, int index, bool overWrite = false)
-        {
-            if (File.Exists(DirectoryManeger.GetAbsotoblePath("/data/floors/" + gex.id + ".json")))
-            {
-                throw new ArgumentException();
-            }
-            var file = new OptimismFileHelper<FloorExpression>();
-            try
-            {
-                await file.OpenAsync(DirectoryManeger.GetAbsotoblePath("/data/floors/" + gex.id + ".json"));
-                await ReplaceFloor(gex, index, overWrite);
-            }
-            catch
-            {
-                throw;
             }
         }
         public static async Task<List<DataExpression<FloorExpression>>> RetriveFloorExDev(string id)
@@ -252,6 +249,60 @@ namespace Bloom.Server.Filer.Handler
                 throw new EntryPointNotFoundException();
             }
             return result;
+        }
+        public static async Task RenewFloor(Floor floor)
+        {
+            var gex = new FloorExpression();
+            gex.ConvertFromFloor(floor);
+            await RenewFloor(gex);
+        }
+        public static async Task RenewFloor(FloorExpression gex)
+        {
+            bool exist = false;
+            var indexer = new OptimismFileHelper<BuildingExpression>();
+            try
+            {
+                await indexer.OpenAsync(DirectoryManeger.GetAbsotoblePath("/data/floor_indexer.json\r\n"));
+            }
+            catch
+            {
+                throw;
+            }
+            for (int i = 0; i < indexer.values.Count; i++)
+            {
+                if (indexer.values[i].data != null && indexer.values[i].data.building == gex.building)
+                {
+                    try
+                    {
+                        var floor = new OptimismFileHelper<FloorExpression>();
+                        var a = 0;
+                        await floor.OpenAsync(indexer.values[i].data.paths[gex.froor]);
+                        for (int i = 0; i < floor.values.Count; i++)
+                        {
+                            if (floor.values[i] != null && floor.values[i].data.Equals(gex))
+                            {
+                                floor.values[i].recent = true;
+                                exist = true;
+                            } else if (floor.values[i] != null && floor.values[i].recent)
+                            {
+                                a = i;//あとでrecentを消す用
+                            }
+                        }
+                        if(exist)
+                        {
+                            floor.values[a].recent = false;
+                        }
+                    }
+                    catch
+                    {
+                        throw;
+                    }
+                }
+            }
+            if (!exist)
+            {
+                throw new EntryPointNotFoundException();
+            }
         }
     }
 }

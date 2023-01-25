@@ -34,7 +34,7 @@ namespace Bloom.Server.Controllers
 #endif
             try
             {
-                var path = "/tmp/" + Guid.NewGuid().ToString() + ".txt";
+                var path = "/tmp/" + Guid.NewGuid.NewGuid().ToString("N"); + ".txt";
                 //Close時に削除する一時ファイルを作成
                 using (FileStream fs = File.Create(DirectoryManeger.GetAbsotoblePath(path)))
                 {
@@ -59,24 +59,7 @@ namespace Bloom.Server.Controllers
         private async Task<List<Event>> RetrieveSchedules()
         {
             var result = new List<Event>();
-            try
-            {
-                var indexer = await Filer.GetFileText(DirectoryManeger.GetAbsotoblePath("/data/events.json"));
-                var path = "/tmp/" + Guid.NewGuid().ToString() + ".json";
-                //Close時に削除する一時ファイルを作成
-                using (FileStream sr = File.Create(
-                    DirectoryManeger.GetAbsotoblePath(path),
-                    Encoding.UTF8.GetBytes(indexer).Length,
-                    FileOptions.DeleteOnClose))
-                {
-                    await sr.WriteAsync(Encoding.UTF8.GetBytes(indexer));
-                    result = await JsonSerializer.DeserializeAsync<List<Event>>(sr);
-                }
-            }
-            catch
-            {
-                throw;
-            }
+            
             return result;
         }
     }
